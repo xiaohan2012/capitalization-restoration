@@ -1,7 +1,5 @@
 import nltk
-from feature_extractor import FeatureExtractor
-from feature_templates import load_feature_templates
-from cap_restore import MultiPurposeRestorer
+from cap_restore import DefaultRestorer
 
 if __name__ == "__main__":
     import argparse
@@ -18,5 +16,5 @@ if __name__ == "__main__":
     kwargs={}
     kwargs['docpath'] = args.docpath
 
-    r = MultiPurposeRestorer('models/cap_model.bin', 'models/lower_model.bin', 'models/upper_model.bin', FeatureExtractor(), load_feature_templates())
+    r = DefaultRestorer()
     print " ".join(r.restore(nltk.word_tokenize(unicode(args.sentence)), **kwargs))    

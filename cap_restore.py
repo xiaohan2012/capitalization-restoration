@@ -117,3 +117,8 @@ def transform_words_by_labels(words, labels):
             raise ValueError("Unknown label %s" %(l))
 
     return new_words
+
+
+class DefaultRestorer(MultiPurposeRestorer):
+    def __init__(self):
+        super(DefaultRestorer, self).__init__('models/cap_model.bin', 'models/lower_model.bin', 'models/upper_model.bin', FeatureExtractor(), load_feature_templates())
