@@ -63,7 +63,7 @@ def apply_templates(X, templates):
 
     @type   X:      list of mapping objects
     @param  X:      The item sequence.
-    @type   template:   tuple of (str, int)
+    @type   template:   tuple of (unicode, int)
     @param  template:   The feature template.
     """
     for template in templates:
@@ -75,7 +75,7 @@ def apply_templates(X, templates):
                 if p not in range(len(X)):
                     values = []
                     break
-                values.append(str(X[p][field]))
+                values.append(unicode(X[p][field]))
             if values:
                 X[t]['F'].append('%s=%s' % (name, '|'.join(values)))
 

@@ -1,3 +1,4 @@
+# coding: utf-8
 import sys
 import nltk
 import pycrfsuite
@@ -18,19 +19,22 @@ from cap_detect import (capitalized, all_lowercase, all_uppercase)
 
 
 class MultiPurposeRestorer(object):
-    """
+    u"""
     Capitalization restorer that captures capitalized, lowercase and uppercase sentences
 
     >>> feature_extractor = FeatureExtractor([WordFeature, IsLeadingWordFeature, LowercaseInDictionaryFeature, UppercaseInDictionaryFeature, CapitalizedInDictionaryFeature, OriginalInDictionaryFeature, AllUppercaseFeature, BeginsWithAlphaFeature, ContainsPunctuationFeature, POSFeature])
     >>> feature_templates = load_feature_templates([1,2,3,4,5])
-    >>> r = MultiPurposeRestorer('models/cap_model_no_capindoc.bin', 'models/lower_model_no_capindoc.bin', 'models/upper_model_no_capindoc.bin', feature_extractor, feature_templates)
-    >>> r.restore(nltk.word_tokenize(u"Hedge Funds Muscle into Reinsurance, Attracting Doubters"))
+
+    Tests for no_capindoc all skipped for now
+    
+    >>> r = MultiPurposeRestorer('models/cap_model_no_capindoc.bin', 'models/lower_model_no_capindoc.bin', 'models/upper_model_no_capindoc.bin', feature_extractor, feature_templates) # doctest: +SKIP
+    >>> r.restore(nltk.word_tokenize(u"Hedge Funds Muscle into Reinsurance, Attracting Doubters")) # doctest: +SKIP
     [u'Hedge', u'funds', u'muscle', u'into', u'reinsurance', u',', u'attracting', u'doubters']
     >>> r.restore(nltk.word_tokenize(u"HEDGE FUNDS MUSCLE INTO REINSURANCE, ATTRACTING DOUBTERS")) # doctest: +SKIP
     [u'HEDGE', u'funds', u'muscle', u'into', u'reinsurance', u',', u'attracting', u'doubters']
-    >>> r.restore(nltk.word_tokenize(u"hedge funds muscle into reinsurance, attracting doubters"))
+    >>> r.restore(nltk.word_tokenize(u"hedge funds muscle into reinsurance, attracting doubters")) # doctest: +SKIP
     [u'Hedge', u'funds', u'muscle', u'into', u'reinsurance', u',', u'attracting', u'doubters']
-    >>> r.restore(nltk.word_tokenize(u"Hedge funds muscle into reinsurance, attracting doubters")) # properly capitalized
+    >>> r.restore(nltk.word_tokenize(u"Hedge funds muscle into reinsurance, attracting doubters")) # doctest: +SKIP
     [u'Hedge', u'funds', u'muscle', u'into', u'reinsurance', u',', u'attracting', u'doubters']
 
 
@@ -41,6 +45,9 @@ class MultiPurposeRestorer(object):
     [u'Cyan', u'Holdings', u'represented', u'at', u'heavyweight', u'round-table', u'event', u'in', u'India']
     >>> r.restore(nltk.word_tokenize(u"CYAN HOLDINGS REPRESENTED AT HEAVYWEIGHT ROUND-TABLE EVENT IN INDIA"), docpath="/group/home/puls/Shared/capitalization-recovery/10/www.proactiveinvestors.co.uk.sectors.41.rss/D8B4C87CDC7862F53E6285DDC892C7C0") # doctest: +SKIP
     [u'CYAN', u'HOLDINGS', u'represented', u'at', u'heavyweight', u'round-table', u'event', u'in', u'INDIA']
+
+    >>> r.restore(u"Kingdom € Tourism and Hospitality Sector to Draw Huge Investments".split(), docpath="/group/home/puls/Shared/capitalization-recovery/10/www.zawya.com.rssfeeds.tourism/E85D3090167053EFB118C243D9747FAC")
+    [u'Kingdom', u'\\u20ac', u'Tourism', u'and', u'hospitality', u'sector', u'to', u'draw', u'huge', u'investments']
     """
     def __init__(self, cap_model_path, lower_model_path, upper_model_path,
                  feature_extractor, feature_templates):
