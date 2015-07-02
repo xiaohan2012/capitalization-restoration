@@ -19,10 +19,10 @@ class MainHandler(tornado.web.RequestHandler):
 
     def post(self):
         data = json.loads(self.request.body)
-        text = data.get("text")
-        if not text:
+        sentence = data.get("sentence")
+        if not sentence:
             self.write_error_msg(STATUS_INVALID_PARAM,
-                             msg="Missing argument: text")
+                             msg="Missing argument: sentence")
             return
             
         docpath = data.get("docpath")
@@ -34,7 +34,7 @@ class MainHandler(tornado.web.RequestHandler):
         ans = {}
         
         try:
-            ans['result'] = restorer.restore(nltk.word_tokenize(unicode(text)), 
+            ans['result'] = restorer.restore(nltk.word_tokenize(unicode(sentence)), 
                                              docpath=docpath)
             ans['code'] = STATUS_OK
             self.write(ans)

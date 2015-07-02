@@ -19,8 +19,23 @@ We want to restore to the above.
 
 ## Command line
 
-Run the following for more
+First, open the web service:
 
-    >>> python capitalization_restoration.py --help
+    >>> python app.py
+
+Second, 
+
+    >>> python capitalization_restoration_web.py --help
+
+
+## Demo
+
+For Curl:
+
+    >>> ./curl_cmd_demo.sh
+
+For Shell:
+
+    >>> ./py_cmd_demo.sh
 
 
