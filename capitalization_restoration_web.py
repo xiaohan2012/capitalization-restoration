@@ -1,5 +1,9 @@
-import urllib
+import sys
+import urllib2
 import json
+import socket
+
+TIMEOUT_THRESHOLD = 2
 
 if __name__ == "__main__":
     import argparse
@@ -16,7 +20,20 @@ if __name__ == "__main__":
     kwargs={"sentence": args.sentence,
             "docpath": args.docpath}
 
-    res = urllib.urlopen("http://localhost:8888/caprestore", json.dumps(kwargs))
+    timeout_count = 0
+
+    while True:
+        try:
+            res = urllib2.urlopen("http://localhost:8888/caprestore", json.dumps(kwargs), 1.0)
+        except urllib2.URLError, e:
+            print "URLError: {}".format(e.reason)
+            sys.exit(-1)
+        except socket.timeout:
+            timeout_count += 1
+            if timeout_count == TIMEOUT_THRESHOLD:
+                print "Timeout count reaches {}. Abandon.".format(TIMEOUT_THRESHOLD)
+                sys.exit(-1)
+
     res = json.loads(res.read())
     try:
         print " ".join(res['result'])

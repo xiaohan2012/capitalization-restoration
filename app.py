@@ -48,6 +48,8 @@ class MainHandler(tornado.web.RequestHandler):
                 self.write_error_msg(STATUS_RESTORE_ERROR,
                                  msg="Restoration error occurred")
             
+        import time
+        time.sleep(1.1)
 
 settings = {
     'debug': True,
