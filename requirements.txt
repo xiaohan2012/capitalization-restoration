@@ -1,0 +1,12 @@
+argparse==1.2.1
+backports.ssl-match-hostname==3.4.0.2
+certifi==2015.04.28
+cssselect==0.9.1
+lxml==3.4.4
+nltk==3.0.3
+numpy==1.9.2
+pyenchant==1.6.6
+pyquery==1.2.9
+python-crfsuite==0.8.3
+tornado==4.2
+wsgiref==0.1.2

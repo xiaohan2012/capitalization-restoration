@@ -17,4 +17,9 @@ if __name__ == "__main__":
             "docpath": args.docpath}
 
     res = urllib.urlopen("http://localhost:8888/caprestore", json.dumps(kwargs))
-    print " ".join(json.loads(res.read())['result'])
+    res = json.loads(res.read())
+    try:
+        print " ".join(res['result'])
+    except KeyError:
+        print "**Error:"
+        print res['msg']

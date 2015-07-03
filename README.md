@@ -37,5 +37,3 @@ For Curl:
 For Shell:
 
     >>> ./py_cmd_demo.sh
-
-

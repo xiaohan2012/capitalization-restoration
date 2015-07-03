@@ -3,6 +3,8 @@ import tornado.ioloop
 import tornado.web
 
 import nltk
+nltk.data.path.append('nltk_data')
+
 from cap_restore import DefaultRestorer
 
 import traceback
