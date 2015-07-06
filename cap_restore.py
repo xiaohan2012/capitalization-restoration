@@ -1,4 +1,5 @@
 # coding: utf-8
+import os
 import sys
 import nltk
 import pycrfsuite
@@ -128,4 +129,9 @@ def transform_words_by_labels(words, labels):
 
 class DefaultRestorer(MultiPurposeRestorer):
     def __init__(self):
-        super(DefaultRestorer, self).__init__('models/cap_model.bin', 'models/lower_model.bin', 'models/upper_model.bin', FeatureExtractor(), load_feature_templates())
+        cur_path = os.path.abspath(os.path.dirname(__file__))
+        super(DefaultRestorer, self).__init__(os.path.join(cur_path, 'models/cap_model.bin'),
+                                              os.path.join(cur_path, 'models/lower_model.bin'),
+                                              os.path.join(cur_path, 'models/upper_model.bin'),
+                                              FeatureExtractor(),
+                                              load_feature_templates())
