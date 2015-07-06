@@ -3,7 +3,7 @@ import urllib2
 import json
 import socket
 
-TIMEOUT_THRESHOLD = 2
+TIMEOUT_THRESHOLD = 3
 
 if __name__ == "__main__":
     import argparse
@@ -25,6 +25,7 @@ if __name__ == "__main__":
     while True:
         try:
             res = urllib2.urlopen("http://localhost:8888/caprestore", json.dumps(kwargs), 1.0)
+            break
         except urllib2.URLError, e:
             print "URLError: {}".format(e.reason)
             sys.exit(-1)

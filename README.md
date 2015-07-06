@@ -41,4 +41,4 @@ For Shell:
 
 ## Links
 
-- [Daemontools](http://cr.yp.to/daemontools.html)
+- [Monit(service supervision tool)](https://mmonit.com/monit/)
