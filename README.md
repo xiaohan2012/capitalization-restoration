@@ -42,3 +42,19 @@ For Shell:
 ## Links
 
 - [Monit(service supervision tool)](https://mmonit.com/monit/)
+
+
+## Running Monit
+
+Before running `monit`, paths setting should be fixed.
+
+Two things should be done:
+
+1. Ensure the `pid` directory in `cap_restore.sh` is writable
+2. Ensure the "check process" part in `monitrc` has the correct path information
+
+
+Then, run the following to start monitoring
+
+    >>> monit -c /path/to/monitrc # one sample is shiped under this directory
+
