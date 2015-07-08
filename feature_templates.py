@@ -34,7 +34,8 @@ spelling_features = [
     (('has-punct', 0), )
 ]
 
-document_features = [(('indoccap', 0), )]
+document_features = [(('indoccap', 0), ), 
+                     (('indoclower', 0), )]
 
 id2featue = {
     1: lexical_features,

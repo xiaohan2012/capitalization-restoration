@@ -21,7 +21,7 @@ We want to restore to the above.
 
 First, open the web service:
 
-    >>> python app.py
+    >>> python capitalization_restoration_service.py
 
 Second, 
 
@@ -38,6 +38,12 @@ For Shell:
 
     >>> ./py_cmd_demo.sh
 
+
+## How to add new features
+
+1. Modify the `feature_extractor.py` and `feature_template.py`
+2. Retrain the data
+3. Update the model in `models/`
 
 ## Links
 

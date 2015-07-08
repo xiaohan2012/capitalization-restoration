@@ -299,7 +299,7 @@ DEFAULT_FEATURES = [
     ContainsPunctuationFeature,
     POSFeature,
     CapitalizedInDocumentFeature,
-    # LowercaseInDocumentFeature
+    LowercaseInDocumentFeature
 ]
 
 
