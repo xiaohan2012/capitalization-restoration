@@ -241,6 +241,53 @@ class CapitalizedInDocumentFeature(Feature):
         assert doc, "document string should be given"
         return cls._get_label_for_word(words[t], doc)
 
+
+class LowercaseInDocumentFeature():
+    """
+    Whether the word appears lower-cased in the document.
+
+    One exception is the leading word of the sentence, which is lower-cased by convention.
+
+    In this case, we don't consider it as lower-cased
+
+    >>> from util import get_document_content_paf, get_document_content
+    >>> doc = get_document_content_paf("/group/home/puls/Shared/capitalization-recovery/10/www.cnbc.com.id.10000030.device.rss.rss/90792FEF7ACEE693A7A87BF5F3D341A1")
+    >>> LowercaseInDocumentFeature.get_value(0, [u"decline"], doc=doc)
+    True
+    >>> LowercaseInDocumentFeature.get_value(0, [u"Buerden"], doc=doc)
+    False
+    >>> LowercaseInDocumentFeature.get_value(0, [u"Getty"], doc=doc)
+    False
+    >>> LowercaseInDocumentFeature.get_value(0, [u"'Getty"], doc=doc) #some trick
+    False
+    >>> doc = get_document_content_paf("/group/home/puls/Shared/capitalization-recovery/12/www.sacbee.com.business.index/A33DCBDA991E786734BCA02B01B9DB04")
+    >>> LowercaseInDocumentFeature.get_value(0, [u'Shinjiro'], doc=doc)
+    False
+    >>> LowercaseInDocumentFeature.get_value(0, [u'Valley'], doc=doc)
+    False
+    >>> LowercaseInDocumentFeature.get_value(0, [u'Robertson'], doc=doc)
+    False
+    """
+    name = "indoclower"
+
+    @classmethod
+    def _get_label_for_word(cls, word, doc):
+        if not word[0].isalpha():  # stuff like 'robust'
+            return False
+
+        word_lower = unicode(word.lower())
+        regexp = re.compile(ur"%s[ \t\n.,']" %
+                            re.escape(word_lower), re.U)
+
+        return True if regexp.search(doc) else False
+
+    @classmethod
+    def get_value(cls, t, words, **kwargs):
+        doc = kwargs.get("doc")
+        assert doc, "document string should be given"
+        return cls._get_label_for_word(words[t], doc)
+
+
 DEFAULT_FEATURES = [
     WordFeature, IsLeadingWordFeature,
     LowercaseInDictionaryFeature,
@@ -251,7 +298,8 @@ DEFAULT_FEATURES = [
     BeginsWithAlphaFeature,
     ContainsPunctuationFeature,
     POSFeature,
-    CapitalizedInDocumentFeature
+    CapitalizedInDocumentFeature,
+    # LowercaseInDocumentFeature
 ]
 
 
