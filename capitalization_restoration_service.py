@@ -22,26 +22,55 @@ class MainHandler(tornado.web.RequestHandler):
         self.write({"code": code, "msg": msg})
 
     def post(self):
+        """
+        Request parameter:
+        ----------------------
+        
+        sentence: string|list of string
+
+        docpath: string, document path
+
+        pos: list of string, part of speech tags of the sentence tokens
+
+        """
         data = json.loads(self.request.body)
         sentence = data.get("sentence")
         if not sentence:
             self.write_error_msg(STATUS_INVALID_PARAM,
                                  msg="Missing argument: sentence")
             return
-            
+        else:
+            if isinstance(sentence, basestring):
+                tokens = nltk.word_tokenize(unicode(sentence))
+            elif isinstance(sentence, list):
+                tokens = sentence
+            else:
+                self.write_error_msg(STATUS_INVALID_PARAM,
+                                     msg="Unknown `sentence` type: `{}`".format(type(sentence)))
+                return
+
+        kwargs = {}
         docpath = data.get("docpath")
         if not docpath:
             self.write_error_msg(STATUS_INVALID_PARAM,
                                  msg="Missing argument: docpath")
             return
+        else:
+            kwargs['docpath'] = docpath
+
+        pos = data.get("pos")
+        if pos:
+            if isinstance(pos, list) and len(pos) == len(tokens):
+                kwargs['pos'] = pos
+            else:
+                self.write_error_msg(STATUS_INVALID_PARAM,
+                                     msg="Invalid `pos`: {}".format(repr(pos)))
+                return
 
         ans = {}
         
         try:
-            ans['result'] = restorer.restore(
-                nltk.word_tokenize(unicode(sentence)), 
-                docpath=docpath
-            )
+            ans['result'] = restorer.restore(tokens, **kwargs)
             ans['code'] = STATUS_OK
             self.write(ans)
         except:
