@@ -17,7 +17,7 @@ We want to restore to the above.
 	>>> print " ".join(restorer.restore(s, docpath=docpath))
 	Kingdom's Tourism and hospitality sector to draw huge investments
 	>>> pos = ('NNP', ':', VBP, 'CC', 'NNP', 'NNP', 'TO', 'NNP', 'NNP', 'NNP')
-	>>> print " ".join(restorer.restore(s, docpath=docpath, pos=))
+	>>> print " ".join(restorer.restore(s, docpath=docpath, pos=pos))
 	Kingdom's tourism and hospitality sector to draw huge investments
 
 ### POS tag
