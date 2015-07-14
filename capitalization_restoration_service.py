@@ -11,9 +11,11 @@ import traceback
 
 restorer = DefaultRestorer()
 
-STATUS_RESTORE_ERROR=-2
-STATUS_INVALID_PARAM=-1
-STATUS_OK=0
+
+STATUS_RESTORE_ERROR = -2
+STATUS_INVALID_PARAM = -1
+STATUS_OK = 0
+
 
 class MainHandler(tornado.web.RequestHandler):
     def write_error_msg(self, code, msg):
@@ -24,29 +26,31 @@ class MainHandler(tornado.web.RequestHandler):
         sentence = data.get("sentence")
         if not sentence:
             self.write_error_msg(STATUS_INVALID_PARAM,
-                             msg="Missing argument: sentence")
+                                 msg="Missing argument: sentence")
             return
             
         docpath = data.get("docpath")
         if not docpath:
             self.write_error_msg(STATUS_INVALID_PARAM,
-                             msg="Missing argument: docpath")
+                                 msg="Missing argument: docpath")
             return
 
         ans = {}
         
         try:
-            ans['result'] = restorer.restore(nltk.word_tokenize(unicode(sentence)), 
-                                             docpath=docpath)
+            ans['result'] = restorer.restore(
+                nltk.word_tokenize(unicode(sentence)), 
+                docpath=docpath
+            )
             ans['code'] = STATUS_OK
             self.write(ans)
         except:
             if self.settings.get("debug"):
                 self.write_error_msg(STATUS_RESTORE_ERROR,
-                                 msg = traceback.format_exc())
+                                     msg=traceback.format_exc())
             else:
                 self.write_error_msg(STATUS_RESTORE_ERROR,
-                                 msg="Restoration error occurred")
+                                     msg="Restoration error occurred")
             
         # import time
         # time.sleep(1.1)
