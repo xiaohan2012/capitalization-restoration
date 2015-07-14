@@ -16,6 +16,13 @@ We want to restore to the above.
 	>>> docpath = "/group/home/puls/Shared/capitalization-recovery/10/www.zawya.com.rssfeeds.tourism/E85D3090167053EFB118C243D9747FAC"
 	>>> print " ".join(restorer.restore(s, docpath=docpath))
 	Kingdom's Tourism and hospitality sector to draw huge investments
+	>>> pos = ('NNP', ':', VBP, 'CC', 'NNP', 'NNP', 'TO', 'NNP', 'NNP', 'NNP')
+	>>> print " ".join(restorer.restore(s, docpath=docpath, pos=))
+	Kingdom's tourism and hospitality sector to draw huge investments
+
+### POS tag
+
+POS tags can be passed in the request so that `NLTK.pos_tag` is not called. For the tag format, please use [Penn Part of Speech Tags]( http://cs.nyu.edu/grishman/jet/guide/PennPOS.html).
 
 ## Command line
 
