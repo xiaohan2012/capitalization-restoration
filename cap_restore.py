@@ -13,16 +13,30 @@ class MultiPurposeRestorer(object):
     u"""
     Capitalization restorer that captures capitalized, lowercase and uppercase sentences
 
-    >>> r = MultiPurposeRestorer('models/cap_model.bin', 'models/lower_model.bin', 'models/upper_model.bin', FeatureExtractor(), load_feature_templates())
-    >>> r.restore(nltk.word_tokenize(u"Cyan Holdings Represented at Heavyweight Round-table Event in India"), docpath="/group/home/puls/Shared/capitalization-recovery/10/www.proactiveinvestors.co.uk.sectors.41.rss/D8B4C87CDC7862F53E6285DDC892C7C0")
+    >>> docpath = "/group/home/puls/Shared/capitalization-recovery/10/www.proactiveinvestors.co.uk.sectors.41.rss/D8B4C87CDC7862F53E6285DDC892C7C0"
+    >>> r = MultiPurposeRestorer('models/cap_model.bin', 
+    ... 'models/lower_model.bin', 
+    ... 'models/upper_model.bin',
+    ... FeatureExtractor(), load_feature_templates())
+    >>> r.restore(nltk.word_tokenize(u"Cyan Holdings Represented at Heavyweight Round-table Event in India"),
+    ... docpath=docpath)
     [u'Cyan', u'Holdings', u'represented', u'at', u'heavyweight', u'round-table', u'event', u'in', u'India']
-    >>> r.restore(nltk.word_tokenize(u"cyan holdings represented at heavyweight round-table event in india"), docpath="/group/home/puls/Shared/capitalization-recovery/10/www.proactiveinvestors.co.uk.sectors.41.rss/D8B4C87CDC7862F53E6285DDC892C7C0")
-    [u'Cyan', u'holdings', u'represented', u'at', u'heavyweight', u'round-table', u'event', u'in', u'India']
-    >>> r.restore(nltk.word_tokenize(u"CYAN HOLDINGS REPRESENTED AT HEAVYWEIGHT ROUND-TABLE EVENT IN INDIA"), docpath="/group/home/puls/Shared/capitalization-recovery/10/www.proactiveinvestors.co.uk.sectors.41.rss/D8B4C87CDC7862F53E6285DDC892C7C0") # doctest: +SKIP
+    >>> r.restore(nltk.word_tokenize(u"cyan holdings represented at heavyweight round-table event in india"),
+    ... docpath=docpath)
+    [u'Cyan', u'Holdings', u'represented', u'at', u'heavyweight', u'round-table', u'event', u'in', u'India']
+    >>> r.restore(nltk.word_tokenize(u"CYAN HOLDINGS REPRESENTED AT HEAVYWEIGHT ROUND-TABLE EVENT IN INDIA"),
+    ... docpath=docpath) # doctest: +SKIP
     [u'CYAN', u'HOLDINGS', u'represented', u'at', u'heavyweight', u'round-table', u'event', u'in', u'INDIA']
 
-    >>> r.restore(u"Kingdom € Tourism and Hospitality Sector to Draw Huge Investments".split(), docpath="/group/home/puls/Shared/capitalization-recovery/10/www.zawya.com.rssfeeds.tourism/E85D3090167053EFB118C243D9747FAC")
+    >>> docpath="/group/home/puls/Shared/capitalization-recovery/10/www.zawya.com.rssfeeds.tourism/E85D3090167053EFB118C243D9747FAC"
+    >>> r.restore(u"Kingdom € Tourism and Hospitality Sector to Draw Huge Investments".split(),
+    ... docpath=docpath)
     [u'Kingdom', u'\\u20ac', u'Tourism', u'and', u'hospitality', u'sector', u'to', u'draw', u'huge', u'investments']
+
+    >>> r.restore(u"Kingdom € Tourism and Hospitality Sector to Draw Huge Investments".split(),
+    ... pos=('NNP', ':', 'VBP', 'CC', 'NNP', 'NNP', 'TO', 'NNP', 'NNP', 'NNP'), # Tourism will be lowercased
+    ... docpath=docpath)
+    [u'Kingdom', u'\\u20ac', u'tourism', u'and', u'hospitality', u'sector', u'to', u'draw', u'huge', u'investments']
     """
     def __init__(self, cap_model_path, lower_model_path, upper_model_path,
                  feature_extractor, feature_templates):
@@ -51,6 +65,7 @@ class MultiPurposeRestorer(object):
             sys.stderr.write("Seems to be in proper capitalization\n")
             return words
 
+
 class Restorer(object):
     def __init__(self, model_path,
                  feature_extractor=FeatureExtractor(),
@@ -64,8 +79,8 @@ class Restorer(object):
         assert isinstance(sent, list)
 
         words_with_features = self.extractor.extract(sent, *args, **kwargs)
-        print words_with_features
-        for word in words_with_features: # accord to crfsuite 
+
+        for word in words_with_features:  # accord to crfsuite 
             word["F"] = []
 
         return self.tagger.tag(apply_templates(words_with_features, self.templates))

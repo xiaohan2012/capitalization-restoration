@@ -318,7 +318,11 @@ class FeatureExtractor(object):
     >>> info[1]["indoccap"]
     True
     >>> extractor.feature_names
-    ['word', 'is-leading-word', 'lower-in-dict', 'upper-in-dict', 'cap-in-dict', 'orig-in-dict', 'all-letter-uppercase', 'begins-with-alphabetic', 'has-punct', 'pos-tag', 'indoccap']
+    ['word', 'is-leading-word', 'lower-in-dict', 'upper-in-dict', 'cap-in-dict', 'orig-in-dict', 'all-letter-uppercase', 'begins-with-alphabetic', 'has-punct', 'pos-tag', 'indoccap', 'indoclower']
+    >>> info = extractor.extract([u"I", u"love", u"you"], 
+    ... pos=['PRP', 'VBP', 'PRP'], docpath="test_data/i-love-you")
+    >>> info[0]['pos-tag']
+    'PRP'
     """
     def __init__(self, features=DEFAULT_FEATURES):
         self.features = features
@@ -329,8 +333,15 @@ class FeatureExtractor(object):
 
         feature_kwargs = {}
 
+        # pos tags
         if POSFeature in self.features:
-            feature_kwargs["pos"] = [tag for _, tag in nltk.pos_tag(sent)]  # pos tags
+            if 'pos' in kwargs:
+                # TODO:
+                # POS tag format checking
+                feature_kwargs["pos"] = kwargs['pos']
+            else:
+                feature_kwargs["pos"] = [tag 
+                                         for _, tag in nltk.pos_tag(sent)]
 
         if CapitalizedInDocumentFeature in self.features:
             assert "docpath" in kwargs
