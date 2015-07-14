@@ -18,6 +18,12 @@ if __name__ == "__main__":
                         dest='pos',
                         help='POS tags separated by "|"')
 
+    parser.add_argument('--host', dest="host", type=str, required=False,
+                        default='localhost', help='Host name of the service')
+    parser.add_argument('--port', dest="port", type=str, required=False,
+                        default='8888', help='Port of the service')
+
+
     args = parser.parse_args()
     
     if '|' in args.sentence:
@@ -35,7 +41,7 @@ if __name__ == "__main__":
 
     while True:
         try:
-            res = urllib2.urlopen("http://localhost:8888/caprestore", 
+            res = urllib2.urlopen("http://{}:{}/caprestore".format(args.host, args.port), 
                                   json.dumps(kwargs), 1.0)
             break
         except urllib2.URLError, e:
