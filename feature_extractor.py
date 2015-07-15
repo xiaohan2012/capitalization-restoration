@@ -45,6 +45,27 @@ class POSFeature(Feature):
             raise KeyError("'pos' is not in arguments")
 
 
+class POSLowercaseFeature(Feature):
+    """
+    The POS tag for the lowercase sentence
+    
+    # TODO:
+
+    - Code duplication as POSFeature.
+
+    >>> POSLowercaseFeature.get_value(0, ["company"], pos_lower = ["NN"])
+    'NN'
+    """
+    name = "pos-tag-lower"
+
+    @classmethod
+    def get_value(cls, t, words, **kwargs):
+        if 'pos_lower' in kwargs:
+            return kwargs['pos_lower'][t]
+        else:
+            raise KeyError("'pos_lower' is not in arguments")
+
+
 class IsLeadingWordFeature(Feature):
     """
     If the word is the first one of the sentence or not
@@ -298,6 +319,7 @@ DEFAULT_FEATURES = [
     BeginsWithAlphaFeature,
     ContainsPunctuationFeature,
     POSFeature,
+    POSLowercaseFeature,
     CapitalizedInDocumentFeature,
     LowercaseInDocumentFeature
 ]
@@ -308,7 +330,8 @@ class FeatureExtractor(object):
     Extract features for sentence
 
     >>> extractor = FeatureExtractor()
-    >>> info = extractor.extract([u"I", u"love", u"you"], docpath="test_data/i-love-you")
+    >>> info = extractor.extract([u"I", u"love", u"you"],
+    ... docpath="test_data/i-love-you")
     >>> len(info[0]) == len(DEFAULT_FEATURES)
     True
     >>> info[0]["pos-tag"]
@@ -318,11 +341,18 @@ class FeatureExtractor(object):
     >>> info[1]["indoccap"]
     True
     >>> extractor.feature_names
-    ['word', 'is-leading-word', 'lower-in-dict', 'upper-in-dict', 'cap-in-dict', 'orig-in-dict', 'all-letter-uppercase', 'begins-with-alphabetic', 'has-punct', 'pos-tag', 'indoccap', 'indoclower']
+    ['word', 'is-leading-word', 'lower-in-dict', 'upper-in-dict', 'cap-in-dict', 'orig-in-dict', 'all-letter-uppercase', 'begins-with-alphabetic', 'has-punct', 'pos-tag', 'pos-tag-lower', 'indoccap', 'indoclower']
     >>> info = extractor.extract([u"I", u"love", u"you"], 
     ... pos=['PRP', 'VBP', 'PRP'], docpath="test_data/i-love-you")
     >>> info[0]['pos-tag']
     'PRP'
+
+    >>> info = extractor.extract(u"Adani Power Gets Competition Commission of India Nod to Buy Power Plant ;  Stock Gains".split(),
+    ... docpath="test_data/i-love-you")
+    >>> info[2]["pos-tag"]
+    'NNPS'
+    >>> info[2]["pos-tag-lower"]
+    'NNS'
     """
     def __init__(self, features=DEFAULT_FEATURES):
         self.features = features
@@ -342,6 +372,16 @@ class FeatureExtractor(object):
             else:
                 feature_kwargs["pos"] = [tag 
                                          for _, tag in nltk.pos_tag(sent)]
+
+        if POSLowercaseFeature in self.features:
+            if 'pos_lower' in kwargs:
+                feature_kwargs["pos_lower"] = kwargs['pos_lower']
+            else:
+                feature_kwargs["pos_lower"] = [tag 
+                                               for _, tag in
+                                               nltk.pos_tag(
+                                                   map(lambda s: s.lower(),
+                                                       sent))]
 
         if CapitalizedInDocumentFeature in self.features:
             assert "docpath" in kwargs

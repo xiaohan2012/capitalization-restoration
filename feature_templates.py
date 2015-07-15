@@ -1,4 +1,3 @@
-import sys
 # Attribute templates.
 
 lexical_features = [ 
@@ -26,6 +25,7 @@ pos_features = [
     (('pos-tag',  0), ),
     (('pos-tag', -1), ('pos-tag',  0)),
     (('pos-tag',  0), ('pos-tag',  1)),
+    (('pos-tag-lower',  0), ),
 ]
 
 spelling_features = [
@@ -46,13 +46,15 @@ id2featue = {
     6: document_features
 }
 
-def load_feature_templates(feature_ids = [1,2,3,4,5,6]):
+
+def load_feature_templates(feature_ids=[1, 2, 3, 4, 5, 6]):
     templates = []
 
     for fid in feature_ids:
         templates += id2featue[fid]
 
     return templates
+
 
 def apply_templates(X, templates):
     """
