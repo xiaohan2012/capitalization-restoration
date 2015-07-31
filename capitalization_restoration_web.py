@@ -8,41 +8,24 @@ TIMEOUT_THRESHOLD = 3
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='Restore the sentence capitalization relying on document content')
-    parser.add_argument('-s', dest="sentence", type=str, required=True,
-                        help='sentence string or tokens separated by "|"')
-    parser.add_argument('--docpath', type=str, required=True,
-                        dest='docpath',
-                        help='Path to the document associated with the sentence')
-    parser.add_argument('--pos', type=str, required=False,
-                        dest='pos',
-                        help='POS tags separated by "|"')
+    parser = argparse.ArgumentParser(description='Dummy service')
+    parser.add_argument('--json_string', dest="json_string", type=str, required=True,
+                        help='The json data string')
 
     parser.add_argument('--host', dest="host", type=str, required=False,
                         default='localhost', help='Host name of the service')
     parser.add_argument('--port', dest="port", type=str, required=False,
                         default='8888', help='Port of the service')
 
-
     args = parser.parse_args()
     
-    if '|' in args.sentence:
-        sentence = args.sentence.split('|')
-    else:
-        sentence = args.sentence
-
-    kwargs = {'sentence': sentence,
-              'docpath': args.docpath}
-
-    if args.pos:
-        kwargs['pos'] = args.pos.split('|')
-
     timeout_count = 0
 
     while True:
         try:
-            res = urllib2.urlopen("http://{}:{}/caprestore".format(args.host, args.port), 
-                                  json.dumps(kwargs), 1.0)
+            res = urllib2.urlopen(
+                "http://{}:{}/caprestore".format(args.host, args.port),
+                args.json_string, 1.0)
             break
         except urllib2.URLError, e:
             print "URLError: {}".format(e.reason)
@@ -54,9 +37,4 @@ if __name__ == "__main__":
                     TIMEOUT_THRESHOLD)
                 sys.exit(-1)
 
-    res = json.loads(res.read())
-    try:
-        print " ".join(res['result'])
-    except KeyError:
-        print "**Error:"
-        print res['msg']
+    print res.read()
