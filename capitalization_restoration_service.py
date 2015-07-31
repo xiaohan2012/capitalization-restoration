@@ -10,7 +10,7 @@ class MainHandler(tornado.web.RequestHandler):
     def post(self):
         data = json.loads(self.request.body)
         new_data = []
-        for r in data:
+        for r in data['capitalizedSentences']:
             new_data.append({'no': r['no'], 'tokens': r['tokens']})
         self.write(json.dumps(new_data))
 
