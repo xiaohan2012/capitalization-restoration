@@ -319,7 +319,7 @@ DEFAULT_FEATURES = [
     BeginsWithAlphaFeature,
     ContainsPunctuationFeature,
     POSFeature,
-    POSLowercaseFeature,
+    # POSLowercaseFeature,
     CapitalizedInDocumentFeature,
     LowercaseInDocumentFeature
 ]

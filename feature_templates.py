@@ -25,17 +25,23 @@ pos_features = [
     (('pos-tag',  0), ),
     (('pos-tag', -1), ('pos-tag',  0)),
     (('pos-tag',  0), ('pos-tag',  1)),
-    (('pos-tag-lower',  0), ),
+    # (('pos-tag-lower',  0), ),
+    # (('pos-tag-lower',  -1), ),
+    # (('pos-tag-lower',  -1), ('pos-tag-lower',  0)),
 ]
 
 spelling_features = [
     (('all-letter-uppercase', 0), ),
-    (('begins-with-alphabetic', 0), ),
+    # (('begins-with-alphabetic', 0), ),
     (('has-punct', 0), )
 ]
 
-document_features = [(('indoccap', 0), ), 
-                     (('indoclower', 0), )]
+document_features = [(('indoccap', 0), ),
+                     (('indoclower', 0), ),
+                     (('indoccap', 0), ('lower-in-dict', 0)),
+                     (('indoccap', 0), ('upper-in-dict', 0)),
+                     (('indoccap', 0), ('cap-in-dict', 0))
+]
 
 id2featue = {
     1: lexical_features,
