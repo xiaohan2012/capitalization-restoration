@@ -1,7 +1,6 @@
 # coding: utf-8
 import os
 import sys
-import nltk
 import pycrfsuite
 from feature_extractor import FeatureExtractor
 from feature_templates import (load_feature_templates, apply_templates)
@@ -9,10 +8,14 @@ from feature_templates import (load_feature_templates, apply_templates)
 from cap_detect import (capitalized, all_lowercase, all_uppercase)
 
 
+CURDIR = os.path.dirname(os.path.realpath(__file__))
+
+
 class MultiPurposeRestorer(object):
     u"""
     Capitalization restorer that captures capitalized, lowercase and uppercase sentences
 
+    >>> import nltk
     >>> docpath = "/group/home/puls/Shared/capitalization-recovery/10/www.proactiveinvestors.co.uk.sectors.41.rss/D8B4C87CDC7862F53E6285DDC892C7C0"
     >>> r = MultiPurposeRestorer('models/cap_model.bin', 
     ... 'models/lower_model.bin', 
@@ -124,3 +127,12 @@ class DefaultRestorer(MultiPurposeRestorer):
                                               os.path.join(cur_path, 'models/upper_model.bin'),
                                               FeatureExtractor(),
                                               load_feature_templates())
+
+
+class PulsRestorer(Restorer):
+    """
+    Restorerer for PULS system
+    """
+    def __init__(self, *args, **kwargs):
+        super(PulsRestorer, self).__init__(CURDIR + '/models/puls-model',
+                                           *args, **kwargs)
