@@ -21,6 +21,7 @@ import json
 
 from ground_truth import (ARTICLES, PREPOSITIONS, CONJUNCTIONS)
 
+
 def get_file_names(paths = ["/group/home/puls/Shared/capitalization-recovery/12"]):
     """
     Get all document file paths    
@@ -32,6 +33,7 @@ def get_file_names(paths = ["/group/home/puls/Shared/capitalization-recovery/12"
                     yield file_path
 
 title_pos_regexp = re.compile(r"^(\d+) (\d+) Headline type main$")
+
 
 def get_title_position(path):
     """
@@ -49,6 +51,7 @@ def get_title_position(path):
 
     raise Exception("Unable to find start and end position for %s" %path)
             
+
 def get_document_content_paf(path):
     """
     Content extractor for PAF file
@@ -61,6 +64,7 @@ def get_document_content_paf(path):
         content = doc.read()
         return "".join(content[end:])
 
+
 def get_document_content(path):
     """
     Get the actual content of the document
@@ -70,6 +74,7 @@ def get_document_content(path):
     """
     with decode_open(path, "r", "utf8", "ignore") as doc:
         return doc.read()
+
 
 def is_monocase(title_words):
     """
@@ -101,27 +106,31 @@ def is_monocase(title_words):
 
 # Mapping for non-standard punctuations to standard ones
 
-trans_mapping = {u'‘': u'\'',# (8216 ‘ #\LEFT_SINGLE_QUOTATION_MARK)
-             u'’': u'\'',# (8217 ’ #\RIGHT_SINGLE_QUOTATION_MARK)
-             u'❛': u'\'',# (10075 #\HEAVY_SINGLE_TURNED_COMMA_QUOTATION_MARK_ORNAMENT)
-             u'❜': u'\'',# (10076 #\HEAVY_SINGLE_COMMA_QUOTATION_MARK_ORNAMENT)
-             u'\u0092': u'\'', # (146 #\Private-Use-Two)
-             u'‛': u'\'',    # (8219 ‛ #\SINGLE_HIGH-REVERSED-9_QUOTATION_MARK)
-             u'“': u'"',  # (8220 “ #\LEFT_DOUBLE_QUOTATION_MARK)
-             u'”': u'"',  # (8221 ” #\RIGHT_DOUBLE_QUOTATION_MARK)
-             u'‟': u'"',  # (8223 ‟ #\DOUBLE_HIGH-REVERSED-9_QUOTATION_MARK)
-             u'❝': u'"',  # (10077 ❝ #\HEAVY_DOUBLE_TURNED_COMMA_QUOTATION_MARK_ORNAMENT)
-             u'❞': u'"', # (10078 ❞ #\HEAVY_DOUBLE_COMMA_QUOTATION_MARK_ORNAMENT)
-             u'＂': u'"', # (65282 ＂ #\FULLWIDTH_QUOTATION_MARK)
-             u'＇': u'\'', # (65287 ＇ #\FULLWIDTH_APOSTROPHE)
-             u'，': u',', # (65292 #\FULLWIDTH_COMMA)
-             u'_': u' ', # (95 UNDERSCORE)
-             u'–': u'-', # (8211 #\EN_DASH)
-             u'—': u'-', # (8212 #\EM_DASH)
-         }
+
+trans_mapping = {u'‘': u'\'',  # (8216 ‘ #\LEFT_SINGLE_QUOTATION_MARK)
+                 u'’': u'\'',  # (8217 ’ #\RIGHT_SINGLE_QUOTATION_MARK)
+                 u'❛': u'\'',  # (10075 #\HEAVY_SINGLE_TURNED_COMMA_QUOTATION_MARK_ORNAMENT)
+                 u'❜': u'\'',  # (10076 #\HEAVY_SINGLE_COMMA_QUOTATION_MARK_ORNAMENT)
+                 u'\u0092': u'\'',  # (146 #\Private-Use-Two)
+                 u'‛': u'\'',    # (8219 ‛ #\SINGLE_HIGH-REVERSED-9_QUOTATION_MARK)
+                 u'“': u'"',  # (8220 “ #\LEFT_DOUBLE_QUOTATION_MARK)
+                 u'”': u'"',  # (8221 ” #\RIGHT_DOUBLE_QUOTATION_MARK)
+                 u'‟': u'"',  # (8223 ‟ #\DOUBLE_HIGH-REVERSED-9_QUOTATION_MARK)
+                 u'❝': u'"',  # (10077 ❝ #\HEAVY_DOUBLE_TURNED_COMMA_QUOTATION_MARK_ORNAMENT)
+                 u'❞': u'"',  # (10078 ❞ #\HEAVY_DOUBLE_COMMA_QUOTATION_MARK_ORNAMENT)
+                 u'＂': u'"',  # (65282 ＂ #\FULLWIDTH_QUOTATION_MARK)
+                 u'＇': u'\'',  # (65287 ＇ #\FULLWIDTH_APOSTROPHE)
+                 u'，': u',',  # (65292 #\FULLWIDTH_COMMA)
+                 u'_': u' ',  # (95 UNDERSCORE)
+                 u'–': u'-',  # (8211 #\EN_DASH)
+                 u'—': u'-',  # (8212 #\EM_DASH)
+}
+
+
 trans_table = {ord(f): t
-               for f,t in trans_mapping.items()}
+               for f, t in trans_mapping.items()}
     
+
 def normalize_title(s):
     """
     >>> normalize_title(u'Bad Bets Rock Fortress\u2019s Macro Fund')
@@ -159,6 +168,7 @@ def extract_title(path):
         content = doc.read()
         return "".join(content[start: end])    
 
+
 def get_reuter_file_paths(dirs = []):
     """
     Get the zip file paths under the directories `dirs`
@@ -170,6 +180,7 @@ def get_reuter_file_paths(dirs = []):
     for d in dirs:
         for path in glob("%s/*.zip" %d):
             yield path 
+
 
 def zip_contents(zip_path):
     """

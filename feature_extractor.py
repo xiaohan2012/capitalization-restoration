@@ -217,7 +217,32 @@ class AllUppercaseFeature(Feature):
             return False
 
 
-class CapitalizedInDocumentFeature(Feature):
+class DocumentRelatedFeature(Feature):
+    @classmethod
+    def check_doc(cls, doc):
+        if not doc:
+            raise ValueError('Doc should be given')
+
+        try:
+            assert isinstance(doc, list)
+            for sent in doc:
+                assert isinstance(sent, list)
+        except AssertionError:
+            raise TypeError('Invalid doc type: {}'.format(doc))
+
+    @classmethod
+    def tail_token_match_predicate(cls, doc, func):
+        """
+        Check if any of the tail tokens in the doc fulfill the `func`
+        """
+        for sent in doc:
+            for tok in sent[1:]:  # ignore the heading word
+                if func(tok):
+                    return True
+        return False
+
+
+class CapitalizedInDocumentFeature(DocumentRelatedFeature):
     """
     Whether the word appears capitalized in the document.
 
@@ -244,30 +269,26 @@ class CapitalizedInDocumentFeature(Feature):
     True
     """
     name = "indoccap"
-
+    
     @classmethod
     def _get_label_for_word(cls, word, doc):
-        if not word[0].isalpha():  # stuff like 'robust'
-            return False
-
-        word_capi = unicode(word[0].upper() + word[1:])
-        regexp = re.compile(ur"[0-9a-zA-Z)] %s[ \t\n.,']" %
-                            re.escape(word_capi), re.U)
-
-        return True if regexp.search(doc) else False
+        cap_word = unicode(word[0].upper() + word[1:])
+        return cls.tail_token_match_predicate(
+            doc, lambda tok: cap_word == tok
+        )
 
     @classmethod
     def get_value(cls, t, words, **kwargs):
         doc = kwargs.get("doc")
-        assert doc, "document string should be given"
+
+        cls.check_doc(doc)
+
         return cls._get_label_for_word(words[t], doc)
 
 
-class LowercaseInDocumentFeature():
+class LowercaseInDocumentFeature(DocumentRelatedFeature):
     """
     Whether the word appears lower-cased in the document.
-
-    One exception is the leading word of the sentence, which is lower-cased by convention.
 
     In this case, we don't consider it as lower-cased
 
@@ -293,19 +314,15 @@ class LowercaseInDocumentFeature():
 
     @classmethod
     def _get_label_for_word(cls, word, doc):
-        if not word[0].isalpha():  # stuff like 'robust'
-            return False
-
-        word_lower = unicode(word.lower())
-        regexp = re.compile(ur"%s[ \t\n.,']" %
-                            re.escape(word_lower), re.U)
-
-        return True if regexp.search(doc) else False
+        lower_word = word.lower()
+        return cls.tail_token_match_predicate(
+            doc, lambda tok: lower_word == tok
+        )
 
     @classmethod
     def get_value(cls, t, words, **kwargs):
         doc = kwargs.get("doc")
-        assert doc, "document string should be given"
+        cls.check_doc(doc)
         return cls._get_label_for_word(words[t], doc)
 
 
