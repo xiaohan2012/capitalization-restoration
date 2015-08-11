@@ -12,7 +12,6 @@ doc = [
 
 
 def test_DocumentRelatedFeature():
-    assert_raises(ValueError, DocumentRelatedFeature.check_doc, None)
     assert_raises(TypeError, DocumentRelatedFeature.check_doc, 1)
     assert_raises(TypeError,
                   DocumentRelatedFeature.check_doc, [['a', 'a'], None])

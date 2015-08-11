@@ -199,9 +199,6 @@ class AllUppercaseFeature(Feature):
 class DocumentRelatedFeature(Feature):
     @classmethod
     def check_doc(cls, doc):
-        if not doc:
-            raise ValueError('Doc should be given')
-
         try:
             assert isinstance(doc, list)
             for sent in doc:

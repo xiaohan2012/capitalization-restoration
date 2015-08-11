@@ -68,10 +68,20 @@ def test_success_case():
     with Path(CURDIR, 'data/request_data.json').open(encoding='utf8') as f:
         req_data = json.loads(f.read())
         res = make_request(req_data)
-        print res
         assert_equal(res['code'], STATUS_OK)
         assert_equal(res['result'][:2], [
             {'no': 33, 'tokens': u'# # #'.split()},
             {'no': 22, 'tokens': u'About the author'.split()},
         ])
         assert_equal(len(res['result']), 9)
+
+        # empty doc
+        req_data['otherSentences'] = []  # empty docs
+        res = make_request(req_data)
+        assert_equal(res['code'], STATUS_OK)
+        assert_equal(len(res['result']), 9)
+        assert_equal(res['result'][:2], [
+            {'no': 33, 'tokens': u'# # #'.split()},
+            {'no': 22, 'tokens': u'About the author'.split()},
+        ])
+
