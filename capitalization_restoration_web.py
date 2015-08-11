@@ -1,6 +1,5 @@
 import sys
 import urllib2
-import json
 import socket
 
 TIMEOUT_THRESHOLD = 3
@@ -9,8 +8,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description='Dummy service')
-    parser.add_argument('--json_string', dest="json_string", type=str, required=True,
-                        help='The json data string')
+    parser.add_argument('--json_string', dest="json_string", type=str,
+                        required=True, help='The json data string')
 
     parser.add_argument('--host', dest="host", type=str, required=False,
                         default='localhost', help='Host name of the service')

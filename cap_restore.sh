@@ -6,7 +6,7 @@ if [ -z $HOME ]; then
 fi
 
 export PYTHON=python
-export SCRIPT_PATH=$HOME/code/capitalization-restoration/capitalization_restoration_service.py
+export SCRIPT_PATH=$HOME/code/capitalization_restoration/service.py
 
 # Uncomment the PID_DIR if you have write permission to /var/run
 # export PID_DIR=/var/run
