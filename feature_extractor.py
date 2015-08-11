@@ -45,27 +45,6 @@ class POSFeature(Feature):
             raise KeyError("'pos' is not in arguments")
 
 
-class POSLowercaseFeature(Feature):
-    """
-    The POS tag for the lowercase sentence
-    
-    # TODO:
-
-    - Code duplication as POSFeature.
-
-    >>> POSLowercaseFeature.get_value(0, ["company"], pos_lower = ["NN"])
-    'NN'
-    """
-    name = "pos-tag-lower"
-
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
-        if 'pos_lower' in kwargs:
-            return kwargs['pos_lower'][t]
-        else:
-            raise KeyError("'pos_lower' is not in arguments")
-
-
 class IsLeadingWordFeature(Feature):
     """
     If the word is the first one of the sentence or not
@@ -336,7 +315,6 @@ DEFAULT_FEATURES = [
     BeginsWithAlphaFeature,
     ContainsPunctuationFeature,
     POSFeature,
-    # POSLowercaseFeature,
     CapitalizedInDocumentFeature,
     LowercaseInDocumentFeature
 ]
@@ -368,8 +346,6 @@ class FeatureExtractor(object):
     ... docpath="test_data/i-love-you")
     >>> info[2]["pos-tag"]
     'NNPS'
-    >>> info[2]["pos-tag-lower"]
-    'NNS'
     """
     def __init__(self, features=DEFAULT_FEATURES):
         self.features = features
@@ -390,19 +366,9 @@ class FeatureExtractor(object):
                 feature_kwargs["pos"] = [tag 
                                          for _, tag in nltk.pos_tag(sent)]
 
-        if POSLowercaseFeature in self.features:
-            if 'pos_lower' in kwargs:
-                feature_kwargs["pos_lower"] = kwargs['pos_lower']
-            else:
-                feature_kwargs["pos_lower"] = [tag 
-                                               for _, tag in
-                                               nltk.pos_tag(
-                                                   map(lambda s: s.lower(),
-                                                       sent))]
-
         if CapitalizedInDocumentFeature in self.features:
-            assert "docpath" in kwargs
-            feature_kwargs["doc"] = get_document_content_paf(kwargs["docpath"])
+            assert "doc" in kwargs
+            feature_kwargs["doc"] = kwargs["doc"]
 
         words_with_features = []
 
