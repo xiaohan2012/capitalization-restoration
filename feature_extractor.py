@@ -28,6 +28,23 @@ class WordFeature(Feature):
         return words[t]
 
 
+class LemmaFeature(Feature):
+    """
+    The lemma feature
+
+    >>> WordFeature.get_value(0, ["company"], lemma=['compani'])
+    'compani'
+    """
+    name = "lemma"
+
+    @classmethod
+    def get_value(cls, t, words, **kwargs):
+        if 'lemma' in kwargs:
+            return kwargs['lemma'][t]
+        else:
+            raise KeyError("'lemma' is not in arguments")
+
+
 class POSFeature(Feature):
     """
     The word Part-of-speech tag

@@ -2,6 +2,7 @@ from nose.tools import assert_equal, assert_false, assert_true
 
 from capitalization_restoration.feature_extractor \
     import (FeatureExtractor,
+            LemmaFeature,
             WordFeature, IsLeadingWordFeature,
             LowercaseInDictionaryFeature,
             UppercaseInDictionaryFeature,
@@ -45,3 +46,11 @@ def test_FeatureExtractor():
 
     assert_equal(feats[6]['word'], 'Business')
     assert_true(feats[6]['indoclower'])
+
+
+def test_LemmaFeature():
+    words = ['I', 'love', 'those', 'game']
+    lemma = ['i', 'love', 'those', 'games']
+    for i in xrange(len(lemma)):
+        assert_equal(lemma[i],
+                     LemmaFeature.get_value(i, words, lemma=lemma))
