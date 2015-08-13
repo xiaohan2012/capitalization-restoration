@@ -15,8 +15,9 @@ from capitalization_restoration.feature_extractor \
             POSFeature,
             CapitalizedInDocumentFeature,
             LowercaseInDocumentFeature,
-            GenericFilebasedDitionaryFeature,
+            GenericDitionaryFeature,
             FirstnameDictionaryFeature)
+from capitalization_restoration.dictionary import ItemListDictionary
 
 from capitalization_restoration.tests.data import load_turkish_example
 
@@ -95,27 +96,28 @@ def test_LowercaseInDictionaryFeature():
 
 def test_UppercaseInDictionaryFeature():
     f = UppercaseInDictionaryFeature()
-    assert_true(f.get_value(0, ["company"]))
+    assert_false(f.get_value(0, ["company"]))
+    assert_false(f.get_value(0, ["ask"]))
+    assert_false(f.get_value(0, ["occasionally"]))
     assert_true(f.get_value(0, ["ibm"]))
 
 
 def test_OriginalInDictionaryFeature():
-    f = UppercaseInDictionaryFeature()
+    f = OriginalInDictionaryFeature()
     assert_true(f.get_value(0, ["Belarus"]))
-    # bad dictionary
-    # assert_false(f.get_value(0, ["belarus"]))
-
-
-def test_ContainsPunctuationFeature():
-    f = ContainsPunctuationFeature()
-    assert_true(f.get_value(0, ["A-B"]))
-    assert_false(f.get_value(0, ["AB"]))
+    assert_false(f.get_value(0, ["belarus"]))
 
 
 def test_CapitalizedInDictionaryFeature():
     f = CapitalizedInDictionaryFeature()
     assert_true(f.get_value(0, ["google"]))
     assert_false(f.get_value(0, ["ibm"]))
+
+
+def test_ContainsPunctuationFeature():
+    f = ContainsPunctuationFeature()
+    assert_true(f.get_value(0, ["A-B"]))
+    assert_false(f.get_value(0, ["AB"]))
 
 
 def test_AllUppercaseFeature():
@@ -128,9 +130,11 @@ def test_AllUppercaseFeature():
 
 
 def test_GenericFilebasedDitionaryFeature():
-    f = GenericFilebasedDitionaryFeature(CURDIR + '/data/dict.txt')
+    f = GenericDitionaryFeature(ItemListDictionary(CURDIR + '/data/dict.txt'))
     assert_false(f.get_value(0, ['c']))
+    assert_false(f.get_value(0, ['adsad']))
     assert_true(f.get_value(0, ['a']))
+    assert_true(f.get_value(0, ['1111111111111111']))
 
 
 def test_FirstnameDictionaryFeature():

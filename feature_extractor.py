@@ -1,8 +1,7 @@
-import string
-import enchant
-import codecs
 import os
+import string
 
+from dictionary import ItemListDictionary
 
 CURDIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -40,26 +39,23 @@ class LemmaFeature(Feature):
             raise KeyError("'lemma' is not in arguments")
 
 
-class GenericFilebasedDitionaryFeature(Feature):
+class GenericDitionaryFeature(Feature):
     """
-    Check if token is in dictionary and the dict is read from file
+    Check if token is in dictionary
     """
-    def __init__(self, line_dictionary_path):
-        with codecs.open(line_dictionary_path, 'r', 'utf8') as f:
-            self.item_set = set([l.strip() for l in f])
-            
+    def __init__(self, dict_):
+        self.dict_ = dict_
         self.name = None
-        
+
     def get_value(self, t, words, **kwargs):
-        return words[t] in self.item_set
+        return words[t] in self.dict_
         
 
-class FirstnameDictionaryFeature(GenericFilebasedDitionaryFeature):
+class FirstnameDictionaryFeature(GenericDitionaryFeature):
     def __init__(self):
+        dict_ = ItemListDictionary(CURDIR + '/data/dict/dict-first-names.txt')
+        super(FirstnameDictionaryFeature, self).__init__(dict_)
         self.name = 'first-name-dict'
-        super(FirstnameDictionaryFeature, self).__init__(
-            CURDIR + '/data/dict/dict-first-names.txt'
-        )
 
 
 class POSFeature(Feature):
@@ -98,7 +94,7 @@ class BeginsWithAlphaFeature(Feature):
         return words[t][0].isalpha()
 
 
-d = enchant.Dict("en_US")
+unix_dictionary = ItemListDictionary(CURDIR + "/data/dict/unix.txt")
 
 
 class LowercaseInDictionaryFeature(Feature):
@@ -109,7 +105,7 @@ class LowercaseInDictionaryFeature(Feature):
         self.name = "lower-in-dict"
 
     def get_value(self, t, words, **kwargs):
-        return d.check(words[t].lower())
+        return unix_dictionary.check(words[t].lower())
 
 
 class UppercaseInDictionaryFeature(Feature):
@@ -120,7 +116,7 @@ class UppercaseInDictionaryFeature(Feature):
         self.name = "upper-in-dict"
 
     def get_value(self, t, words, **kwargs):
-        return d.check(words[t].upper())
+        return unix_dictionary.check(words[t].upper())
 
 
 class OriginalInDictionaryFeature(Feature):
@@ -131,7 +127,18 @@ class OriginalInDictionaryFeature(Feature):
         self.name = "orig-in-dict"
 
     def get_value(self, t, words, **kwargs):
-        return d.check(words[t])
+        return unix_dictionary.check(words[t])
+
+
+class CapitalizedInDictionaryFeature(Feature):
+    """
+    If the capitalized word is in dictionary
+    """
+    def __init__(self):
+        self.name = "cap-in-dict"
+        
+    def get_value(self, t, words, **kwargs):
+        return unix_dictionary.check(words[t].capitalize())
 
 
 class ContainsPunctuationFeature(Feature):
@@ -147,17 +154,6 @@ class ContainsPunctuationFeature(Feature):
             if l in self.punct:
                 return True
         return False
-
-
-class CapitalizedInDictionaryFeature(Feature):
-    """
-    If the capitalized word is in dictionary
-    """
-    def __init__(self):
-        self.name = "cap-in-dict"
-        
-    def get_value(self, t, words, **kwargs):
-        return d.check(words[t].capitalize())
 
 
 class AllUppercaseFeature(Feature):
@@ -259,7 +255,8 @@ DEFAULT_FEATURES = [
     ContainsPunctuationFeature(),
     POSFeature(),
     CapitalizedInDocumentFeature(),
-    LowercaseInDocumentFeature()
+    LowercaseInDocumentFeature(),
+    FirstnameDictionaryFeature()
 ]
 
 
