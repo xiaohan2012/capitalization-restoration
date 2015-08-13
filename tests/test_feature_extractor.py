@@ -56,13 +56,15 @@ def test_FeatureExtractor():
 
 
 def test_LemmaFeature():
-    words = ['I', 'love', 'those', 'games']
-    lemma = ['i', 'love', 'those', 'game']
+    words = ['I', 'love', 'those', 'games', '12345']
+    input_lemma = ['i', 'love', 'those', 'game', '']
+    expected_lemma = input_lemma[:]
+    expected_lemma[-1] = '12345'
     feat = LemmaFeature()
     assert_equal(feat.name, 'lemma')
-    for i in xrange(len(lemma)):
-        assert_equal(lemma[i],
-                     feat.get_value(i, words, lemma=lemma))
+    for i in xrange(len(expected_lemma)):
+        assert_equal(expected_lemma[i],
+                     feat.get_value(i, words, lemma=input_lemma))
 
 
 def test_WordFeature():

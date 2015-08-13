@@ -7,9 +7,6 @@ CURDIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class Feature(object):
-    def __init__(self):
-        self.name = None
-
     def get_value(cls, t, words, **kwargs):
         raise NotImplementedError
 
@@ -28,13 +25,20 @@ class WordFeature(Feature):
 class LemmaFeature(Feature):
     """
     The lemma feature
+
+    if it's empty string, return the token
+
     """
     def __init__(self):
         self.name = "lemma"
 
     def get_value(self, t, words, **kwargs):
         if 'lemma' in kwargs:
-            return kwargs['lemma'][t]
+            l = kwargs['lemma'][t]
+            if isinstance(l, basestring) and len(l) == 0:
+                return words[t]
+            else:
+                return l
         else:
             raise KeyError("'lemma' is not in arguments")
 
@@ -45,7 +49,6 @@ class GenericDitionaryFeature(Feature):
     """
     def __init__(self, dict_):
         self.dict_ = dict_
-        self.name = None
 
     def get_value(self, t, words, **kwargs):
         return words[t] in self.dict_
@@ -184,7 +187,8 @@ class DocumentRelatedFeature(Feature):
             for sent in doc:
                 assert isinstance(sent, list)
         except AssertionError:
-            raise TypeError('Invalid doc type: {}'.format(doc))
+            raise TypeError('doc/sent type should be list, is {} instead'
+                            .format(type(doc)))
 
     def tail_token_match_predicate(self, doc, func):
         """
@@ -267,6 +271,7 @@ class FeatureExtractor(object):
     def __init__(self, features=DEFAULT_FEATURES):
         self.features = features
         for feat in self.features:
+            assert hasattr(feat, 'name')
             assert feat.name != None, \
                 '{} should have a name'.format(feat.__class__)
 
