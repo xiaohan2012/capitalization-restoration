@@ -12,28 +12,31 @@ doc = [
 
 
 def test_DocumentRelatedFeature():
-    assert_raises(TypeError, DocumentRelatedFeature.check_doc, 1)
+    feat = DocumentRelatedFeature()
+    assert_raises(TypeError, feat.check_doc, 1)
     assert_raises(TypeError,
-                  DocumentRelatedFeature.check_doc, [['a', 'a'], None])
+                  feat.check_doc, [['a', 'a'], None])
 
-    assert_false(DocumentRelatedFeature.tail_token_match_predicate(
+    assert_false(feat.tail_token_match_predicate(
         doc,
         lambda t: t == 'but')
     )
-    assert_false(DocumentRelatedFeature.tail_token_match_predicate(
+    assert_false(feat.tail_token_match_predicate(
         doc,
         lambda t: t == 'But')
     )
 
 
 def test_capindoc():
+    feat = CapitalizedInDocumentFeature()
     words = ['shell', 'some']
-    assert_true(CapitalizedInDocumentFeature.get_value(0, words, doc=doc))
-    assert_false(CapitalizedInDocumentFeature.get_value(1, words, doc=doc))
+    assert_true(feat.get_value(0, words, doc=doc))
+    assert_false(feat.get_value(1, words, doc=doc))
 
 
 def test_lowerindoc():
+    feat = LowercaseInDocumentFeature()
     words = ['Executive', 'Some']
-    assert_true(LowercaseInDocumentFeature.get_value(0, words, doc=doc))
-    assert_false(LowercaseInDocumentFeature.get_value(1, words, doc=doc))
+    assert_true(feat.get_value(0, words, doc=doc))
+    assert_false(feat.get_value(1, words, doc=doc))
 

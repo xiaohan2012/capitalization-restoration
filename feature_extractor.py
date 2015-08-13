@@ -1,15 +1,12 @@
-import re
 import string
 import enchant
 import nltk
 
-from util import get_document_content_paf
-
 
 class Feature(object):
-    name = None
+    def __init__(self):
+        self.name = None
 
-    @classmethod
     def get_value(cls, t, words, **kwargs):
         raise NotImplementedError
 
@@ -17,13 +14,10 @@ class Feature(object):
 class WordFeature(Feature):
     """
     The word feature
-
-    >>> WordFeature.get_value(0, ["company"])
-    'company'
     """
-    name = "word"
+    def __init__(self):
+        self.name = "word"
 
-    @classmethod
     def get_value(cls, t, words, **kwargs):
         return words[t]
 
@@ -31,14 +25,11 @@ class WordFeature(Feature):
 class LemmaFeature(Feature):
     """
     The lemma feature
-
-    >>> WordFeature.get_value(0, ["company"], lemma=['compani'])
-    'compani'
     """
-    name = "lemma"
+    def __init__(self):
+        self.name = "lemma"
 
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def get_value(self, t, words, **kwargs):
         if 'lemma' in kwargs:
             return kwargs['lemma'][t]
         else:
@@ -48,14 +39,11 @@ class LemmaFeature(Feature):
 class POSFeature(Feature):
     """
     The word Part-of-speech tag
-
-    >>> POSFeature.get_value(0, ["company"], pos = ["NN"])
-    'NN'
     """
-    name = "pos-tag"
+    def __init__(self):
+        self.name = "pos-tag"
 
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def get_value(self, t, words, **kwargs):
         if 'pos' in kwargs:
             return kwargs['pos'][t]
         else:
@@ -65,32 +53,22 @@ class POSFeature(Feature):
 class IsLeadingWordFeature(Feature):
     """
     If the word is the first one of the sentence or not
-
-    >>> IsLeadingWordFeature.get_value(1, ["company", "hehe"])
-    False
-    >>> IsLeadingWordFeature.get_value(0, ["123"])
-    True
     """
-    name = "is-leading-word"
+    def __init__(self):
+        self.name = "is-leading-word"
 
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def get_value(self, t, words, **kwargs):
         return t == 0
 
 
 class BeginsWithAlphaFeature(Feature):
     """
     If the word begins with alpha
-
-    >>> BeginsWithAlphaFeature.get_value(0, ["company"])
-    True
-    >>> BeginsWithAlphaFeature.get_value(0, ["123"])
-    False
     """
-    name = "begins-with-alphabetic"
+    def __init__(self):
+        self.name = "begins-with-alphabetic"
 
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def get_value(self, t, words, **kwargs):
         return words[t][0].isalpha()
 
 
@@ -100,70 +78,47 @@ d = enchant.Dict("en_US")
 class LowercaseInDictionaryFeature(Feature):
     """
     If the uppercase word is in dictionary
-
-    >>> LowercaseInDictionaryFeature.get_value(0, ["company"])
-    True
-    >>> LowercaseInDictionaryFeature.get_value(0, ["ibm"])
-    False
     """
+    def __init__(self):
+        self.name = "lower-in-dict"
 
-    name = "lower-in-dict"
-
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def get_value(self, t, words, **kwargs):
         return d.check(words[t].lower())
 
 
 class UppercaseInDictionaryFeature(Feature):
     """
     If the uppercase word is in dictionary
-
-    >>> UppercaseInDictionaryFeature.get_value(0, ["company"])
-    True
-    >>> UppercaseInDictionaryFeature.get_value(0, ["ibm"])
-    True
     """
+    def __init__(self):
+        self.name = "upper-in-dict"
 
-    name = "upper-in-dict"
-
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def get_value(self, t, words, **kwargs):
         return d.check(words[t].upper())
 
 
 class OriginalInDictionaryFeature(Feature):
     """
     If the original word is in dictionary
-
-    >>> OriginalInDictionaryFeature.get_value(0, ["Belarus"])
-    True
-    >>> OriginalInDictionaryFeature.get_value(0, ["belarus"])
-    False
     """
-    name = "orig-in-dict"
+    def __init__(self):
+        self.name = "orig-in-dict"
 
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def get_value(self, t, words, **kwargs):
         return d.check(words[t])
 
 
 class ContainsPunctuationFeature(Feature):
     """
     If the word has punctuations
-
-    >>> ContainsPunctuationFeature.get_value(0, ["A-B"])
-    True
-    >>> ContainsPunctuationFeature.get_value(0, ["AB"])
-    False
     """
-    name = "has-punct"
+    def __init__(self):
+        self.name = "has-punct"
+        self.punct = set(string.punctuation)
 
-    punct = set(string.punctuation)
-
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def get_value(self, t, words, **kwargs):
         for l in words[t]:
-            if l in cls.punct:
+            if l in self.punct:
                 return True
         return False
 
@@ -171,16 +126,11 @@ class ContainsPunctuationFeature(Feature):
 class CapitalizedInDictionaryFeature(Feature):
     """
     If the capitalized word is in dictionary
-
-    >>> CapitalizedInDictionaryFeature.get_value(0, ["google"])
-    True
-    >>> CapitalizedInDictionaryFeature.get_value(0, ["ibm"])
-    False
     """
-    name = "cap-in-dict"
-
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def __init__(self):
+        self.name = "cap-in-dict"
+        
+    def get_value(self, t, words, **kwargs):
         return d.check(words[t].capitalize())
 
 
@@ -188,25 +138,16 @@ class AllUppercaseFeature(Feature):
     """
     If the letters in word is all uppercased
 
-    >>> AllUppercaseFeature.get_value(0, [u'U.S.'])
-    True
-    >>> AllUppercaseFeature.get_value(0, [u'Ad'])
-    False
-    >>> AllUppercaseFeature.get_value(0, [u'123..4'])
-    False
-    >>> AllUppercaseFeature.get_value(0, [u'HAO123'])
-    True
-    >>> AllUppercaseFeature.get_value(0, [u'FIIs'])
-    False
-    """
-    exclude = unicode(string.punctuation + ''.join([str(i) for i in xrange(10)]))
-    table = {ord(c): None
-             for c in exclude}
-    name = "all-letter-uppercase"
 
-    @classmethod
-    def get_value(cls, t, words, **kwargs):        
-        word = words[t].translate(cls.table)  # Remove punctuations + numbers
+    """
+    def __init__(self):
+        exclude = unicode(string.punctuation + ''.join([str(i) for i in xrange(10)]))
+        self.table = {ord(c): None
+                      for c in exclude}
+        self.name = "all-letter-uppercase"
+
+    def get_value(self, t, words, **kwargs):        
+        word = words[t].translate(self.table)  # Remove punctuations + numbers
         if len(word) > 0:
             return (word.upper() == word)
         else:
@@ -214,8 +155,7 @@ class AllUppercaseFeature(Feature):
 
 
 class DocumentRelatedFeature(Feature):
-    @classmethod
-    def check_doc(cls, doc):
+    def check_doc(self, doc):
         try:
             assert isinstance(doc, list)
             for sent in doc:
@@ -223,8 +163,7 @@ class DocumentRelatedFeature(Feature):
         except AssertionError:
             raise TypeError('Invalid doc type: {}'.format(doc))
 
-    @classmethod
-    def tail_token_match_predicate(cls, doc, func):
+    def tail_token_match_predicate(self, doc, func):
         """
         Check if any of the tail tokens in the doc fulfill the `func`
         """
@@ -261,22 +200,21 @@ class CapitalizedInDocumentFeature(DocumentRelatedFeature):
     >>> CapitalizedInDocumentFeature.get_value(0, [u'Robertson'], doc=doc)
     True
     """
-    name = "indoccap"
+    def __init__(self):
+        self.name = "indoccap"
     
-    @classmethod
-    def _get_label_for_word(cls, word, doc):
+    def _get_label_for_word(self, word, doc):
         cap_word = unicode(word[0].upper() + word[1:])
-        return cls.tail_token_match_predicate(
+        return self.tail_token_match_predicate(
             doc, lambda tok: cap_word == tok
         )
 
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def get_value(self, t, words, **kwargs):
         doc = kwargs.get("doc")
 
-        cls.check_doc(doc)
+        self.check_doc(doc)
 
-        return cls._get_label_for_word(words[t], doc)
+        return self._get_label_for_word(words[t], doc)
 
 
 class LowercaseInDocumentFeature(DocumentRelatedFeature):
@@ -303,63 +241,39 @@ class LowercaseInDocumentFeature(DocumentRelatedFeature):
     >>> LowercaseInDocumentFeature.get_value(0, [u'Robertson'], doc=doc)
     False
     """
-    name = "indoclower"
+    def __init__(self):
+        self.name = "indoclower"
 
-    @classmethod
-    def _get_label_for_word(cls, word, doc):
+    def _get_label_for_word(self, word, doc):
         lower_word = word.lower()
-        return cls.tail_token_match_predicate(
+        return self.tail_token_match_predicate(
             doc, lambda tok: lower_word == tok
         )
 
-    @classmethod
-    def get_value(cls, t, words, **kwargs):
+    def get_value(self, t, words, **kwargs):
         doc = kwargs.get("doc")
-        cls.check_doc(doc)
-        return cls._get_label_for_word(words[t], doc)
+        self.check_doc(doc)
+        return self._get_label_for_word(words[t], doc)
 
 
 DEFAULT_FEATURES = [
-    WordFeature, IsLeadingWordFeature,
-    LowercaseInDictionaryFeature,
-    UppercaseInDictionaryFeature,
-    CapitalizedInDictionaryFeature,
-    OriginalInDictionaryFeature,
-    AllUppercaseFeature,
-    BeginsWithAlphaFeature,
-    ContainsPunctuationFeature,
-    POSFeature,
-    CapitalizedInDocumentFeature,
-    LowercaseInDocumentFeature
+    LemmaFeature(), IsLeadingWordFeature(),
+    LowercaseInDictionaryFeature(),
+    UppercaseInDictionaryFeature(),
+    CapitalizedInDictionaryFeature(),
+    OriginalInDictionaryFeature(),
+    AllUppercaseFeature(),
+    BeginsWithAlphaFeature(),
+    ContainsPunctuationFeature(),
+    POSFeature(),
+    CapitalizedInDocumentFeature(),
+    LowercaseInDocumentFeature()
 ]
 
 
 class FeatureExtractor(object):
     """
     Extract features for sentence
-
-    >>> extractor = FeatureExtractor()
-    >>> info = extractor.extract([u"I", u"love", u"you"],
-    ... docpath="test_data/i-love-you")
-    >>> len(info[0]) == len(DEFAULT_FEATURES)
-    True
-    >>> info[0]["pos-tag"]
-    'PRP'
-    >>> info[0]["is-leading-word"]
-    True
-    >>> info[1]["indoccap"]
-    True
-    >>> extractor.feature_names
-    ['word', 'is-leading-word', 'lower-in-dict', 'upper-in-dict', 'cap-in-dict', 'orig-in-dict', 'all-letter-uppercase', 'begins-with-alphabetic', 'has-punct', 'pos-tag', 'pos-tag-lower', 'indoccap', 'indoclower']
-    >>> info = extractor.extract([u"I", u"love", u"you"], 
-    ... pos=['PRP', 'VBP', 'PRP'], docpath="test_data/i-love-you")
-    >>> info[0]['pos-tag']
-    'PRP'
-
-    >>> info = extractor.extract(u"Adani Power Gets Competition Commission of India Nod to Buy Power Plant ;  Stock Gains".split(),
-    ... docpath="test_data/i-love-you")
-    >>> info[2]["pos-tag"]
-    'NNPS'
     """
     def __init__(self, features=DEFAULT_FEATURES):
         self.features = features
@@ -368,29 +282,12 @@ class FeatureExtractor(object):
         """Expect unicode strings"""
         assert isinstance(sent, list), "sent must be a list"
 
-        feature_kwargs = {}
-
-        # pos tags
-        if POSFeature in self.features:
-            if 'pos' in kwargs:
-                # TODO:
-                # POS tag format checking
-                feature_kwargs["pos"] = kwargs['pos']
-            else:
-                feature_kwargs["pos"] = [tag 
-                                         for _, tag in nltk.pos_tag(sent)]
-
-        if CapitalizedInDocumentFeature in self.features:
-            assert "doc" in kwargs
-            feature_kwargs["doc"] = kwargs["doc"]
-
         words_with_features = []
-
         for i in xrange(len(sent)):
             word = {}
             for feature in self.features:
                 word[feature.name] = feature.get_value(i, sent,
-                                                       **feature_kwargs)
+                                                       **kwargs)
 
             words_with_features.append(word)
 
@@ -399,17 +296,3 @@ class FeatureExtractor(object):
     @property
     def feature_names(self):
         return [feature.name for feature in self.features]
-
-
-class FeatureExtractorWithoutDocumentFeature(FeatureExtractor):
-    def __init__(self):
-        features = [WordFeature, IsLeadingWordFeature,
-                    LowercaseInDictionaryFeature,
-                    UppercaseInDictionaryFeature,
-                    CapitalizedInDictionaryFeature,
-                    OriginalInDictionaryFeature,
-                    AllUppercaseFeature,
-                    BeginsWithAlphaFeature,
-                    ContainsPunctuationFeature,
-                    POSFeature]
-        super(FeatureExtractorWithoutDocumentFeature, self).__init__(features)
