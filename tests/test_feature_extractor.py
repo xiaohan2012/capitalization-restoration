@@ -1,3 +1,4 @@
+import os
 from nose.tools import assert_equal, assert_false, assert_true
 
 from capitalization_restoration.feature_extractor \
@@ -13,9 +14,14 @@ from capitalization_restoration.feature_extractor \
             ContainsPunctuationFeature,
             POSFeature,
             CapitalizedInDocumentFeature,
-            LowercaseInDocumentFeature)
+            LowercaseInDocumentFeature,
+            GenericFilebasedDitionaryFeature,
+            FirstnameDictionaryFeature)
 
 from capitalization_restoration.tests.data import load_turkish_example
+
+
+CURDIR = os.path.dirname(os.path.realpath(__file__))
 
 
 feats_extractors = [
@@ -119,3 +125,15 @@ def test_AllUppercaseFeature():
     assert_false(f.get_value(0, [u'123..4']))
     assert_true(f.get_value(0, [u'HAO123']))
     assert_false(f.get_value(0, [u'FIIs']))
+
+
+def test_GenericFilebasedDitionaryFeature():
+    f = GenericFilebasedDitionaryFeature(CURDIR + '/data/dict.txt')
+    assert_false(f.get_value(0, ['c']))
+    assert_true(f.get_value(0, ['a']))
+
+
+def test_FirstnameDictionaryFeature():
+    f = FirstnameDictionaryFeature()
+    assert_true(f.get_value(0, [u'Abigale']))
+    assert_false(f.get_value(0, [u'Han']))

@@ -1,6 +1,10 @@
 import string
 import enchant
-import nltk
+import codecs
+import os
+
+
+CURDIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class Feature(object):
@@ -34,6 +38,28 @@ class LemmaFeature(Feature):
             return kwargs['lemma'][t]
         else:
             raise KeyError("'lemma' is not in arguments")
+
+
+class GenericFilebasedDitionaryFeature(Feature):
+    """
+    Check if token is in dictionary and the dict is read from file
+    """
+    def __init__(self, line_dictionary_path):
+        with codecs.open(line_dictionary_path, 'r', 'utf8') as f:
+            self.item_set = set([l.strip() for l in f])
+            
+        self.name = None
+        
+    def get_value(self, t, words, **kwargs):
+        return words[t] in self.item_set
+        
+
+class FirstnameDictionaryFeature(GenericFilebasedDitionaryFeature):
+    def __init__(self):
+        self.name = 'first-name-dict'
+        super(FirstnameDictionaryFeature, self).__init__(
+            CURDIR + '/data/dict/dict-first-names.txt'
+        )
 
 
 class POSFeature(Feature):
@@ -137,16 +163,17 @@ class CapitalizedInDictionaryFeature(Feature):
 class AllUppercaseFeature(Feature):
     """
     If the letters in word is all uppercased
-
-
     """
     def __init__(self):
-        exclude = unicode(string.punctuation + ''.join([str(i) for i in xrange(10)]))
+        exclude = unicode(string.punctuation + ''.join(
+            [str(i)
+             for i in xrange(10)])
+        )
         self.table = {ord(c): None
                       for c in exclude}
         self.name = "all-letter-uppercase"
 
-    def get_value(self, t, words, **kwargs):        
+    def get_value(self, t, words, **kwargs):
         word = words[t].translate(self.table)  # Remove punctuations + numbers
         if len(word) > 0:
             return (word.upper() == word)
@@ -182,23 +209,6 @@ class CapitalizedInDocumentFeature(DocumentRelatedFeature):
 
     In this case, we don't consider it as capitalized
 
-    >>> from util import get_document_content_paf, get_document_content
-    >>> doc = get_document_content_paf("/group/home/puls/Shared/capitalization-recovery/10/www.cnbc.com.id.10000030.device.rss.rss/90792FEF7ACEE693A7A87BF5F3D341A1")
-    >>> CapitalizedInDocumentFeature.get_value(0, [u"Shell"], doc=doc)
-    True
-    >>> CapitalizedInDocumentFeature.get_value(0, [u"Van Beurden"], doc=doc)
-    False
-    >>> CapitalizedInDocumentFeature.get_value(0, [u"Getty"], doc=doc)
-    False
-    >>> CapitalizedInDocumentFeature.get_value(0, [u"'Getty"], doc=doc) #some trick
-    False
-    >>> doc = get_document_content_paf("/group/home/puls/Shared/capitalization-recovery/12/www.sacbee.com.business.index/A33DCBDA991E786734BCA02B01B9DB04")
-    >>> CapitalizedInDocumentFeature.get_value(0, [u'Shinjiro'], doc=doc)
-    False
-    >>> CapitalizedInDocumentFeature.get_value(0, [u'Valley'], doc=doc)
-    False
-    >>> CapitalizedInDocumentFeature.get_value(0, [u'Robertson'], doc=doc)
-    True
     """
     def __init__(self):
         self.name = "indoccap"
@@ -222,24 +232,6 @@ class LowercaseInDocumentFeature(DocumentRelatedFeature):
     Whether the word appears lower-cased in the document.
 
     In this case, we don't consider it as lower-cased
-
-    >>> from util import get_document_content_paf, get_document_content
-    >>> doc = get_document_content_paf("/group/home/puls/Shared/capitalization-recovery/10/www.cnbc.com.id.10000030.device.rss.rss/90792FEF7ACEE693A7A87BF5F3D341A1")
-    >>> LowercaseInDocumentFeature.get_value(0, [u"decline"], doc=doc)
-    True
-    >>> LowercaseInDocumentFeature.get_value(0, [u"Buerden"], doc=doc)
-    False
-    >>> LowercaseInDocumentFeature.get_value(0, [u"Getty"], doc=doc)
-    False
-    >>> LowercaseInDocumentFeature.get_value(0, [u"'Getty"], doc=doc) #some trick
-    False
-    >>> doc = get_document_content_paf("/group/home/puls/Shared/capitalization-recovery/12/www.sacbee.com.business.index/A33DCBDA991E786734BCA02B01B9DB04")
-    >>> LowercaseInDocumentFeature.get_value(0, [u'Shinjiro'], doc=doc)
-    False
-    >>> LowercaseInDocumentFeature.get_value(0, [u'Valley'], doc=doc)
-    False
-    >>> LowercaseInDocumentFeature.get_value(0, [u'Robertson'], doc=doc)
-    False
     """
     def __init__(self):
         self.name = "indoclower"
@@ -277,6 +269,9 @@ class FeatureExtractor(object):
     """
     def __init__(self, features=DEFAULT_FEATURES):
         self.features = features
+        for feat in self.features:
+            assert feat.name != None, \
+                '{} should have a name'.format(feat.__class__)
 
     def extract(self, sent, *args, **kwargs):
         """Expect unicode strings"""
