@@ -16,7 +16,8 @@ from capitalization_restoration.feature_extractor \
             CapitalizedInDocumentFeature,
             LowercaseInDocumentFeature,
             GenericDitionaryFeature,
-            FirstnameDictionaryFeature)
+            FirstnameDictionaryFeature,
+            MixedCaseInTailFeature)
 from capitalization_restoration.dictionary import ItemListDictionary
 
 from capitalization_restoration.tests.data import load_turkish_example
@@ -49,10 +50,10 @@ def test_FeatureExtractor():
         assert_equal(len(tok), len(feats_extractors))
 
     assert_equal(feats[3]['word'], 'Lithuanian')
-    assert_false(feats[3]['indoccap'])
+    assert_false(feats[3]['cap-in-doc'])
 
     assert_equal(feats[6]['word'], 'Business')
-    assert_true(feats[6]['indoclower'])
+    assert_true(feats[6]['lower-in-doc'])
 
 
 def test_LemmaFeature():
@@ -143,3 +144,9 @@ def test_FirstnameDictionaryFeature():
     f = FirstnameDictionaryFeature()
     assert_true(f.get_value(0, [u'Abigale']))
     assert_false(f.get_value(0, [u'Han']))
+
+
+def test_MixedCaseInTailFeature():
+    f = MixedCaseInTailFeature()
+    assert_true(f.get_value(0, [u'iPhone']))
+    assert_false(f.get_value(0, [u'Apple']))

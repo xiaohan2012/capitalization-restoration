@@ -43,6 +43,19 @@ class LemmaFeature(Feature):
             raise KeyError("'lemma' is not in arguments")
 
 
+class MixedCaseInTailFeature(Feature):
+    """
+    Check if tail substring is mixed case
+    """
+    def __init__(self):
+        self.name = 'mixed-in-tail'
+
+    def get_value(self, t, words, **kwargs):
+        tail = words[t][1:]
+        return (tail.lower() != tail and
+                tail.upper() != tail)
+
+
 class GenericDitionaryFeature(Feature):
     """
     Check if token is in dictionary
@@ -58,7 +71,7 @@ class FirstnameDictionaryFeature(GenericDitionaryFeature):
     def __init__(self):
         dict_ = ItemListDictionary(CURDIR + '/data/dict/dict-first-names.txt')
         super(FirstnameDictionaryFeature, self).__init__(dict_)
-        self.name = 'first-name-dict'
+        self.name = 'first-name-in-dict'
 
 
 class POSFeature(Feature):
@@ -211,7 +224,7 @@ class CapitalizedInDocumentFeature(DocumentRelatedFeature):
 
     """
     def __init__(self):
-        self.name = "indoccap"
+        self.name = "cap-in-doc"
     
     def _get_label_for_word(self, word, doc):
         cap_word = unicode(word[0].upper() + word[1:])
@@ -234,7 +247,7 @@ class LowercaseInDocumentFeature(DocumentRelatedFeature):
     In this case, we don't consider it as lower-cased
     """
     def __init__(self):
-        self.name = "indoclower"
+        self.name = "lower-in-doc"
 
     def _get_label_for_word(self, word, doc):
         lower_word = word.lower()
