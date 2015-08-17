@@ -243,6 +243,16 @@ class DocumentRelatedFeature(Feature):
                 return True
         return False
 
+    def token_match_predicate(self, doc, func):
+        """
+        Check if any of the tokens in the doc fulfill the `func`
+        """
+        for sent in doc:
+            for tok in sent:  # ignore the heading word
+                if func(tok):
+                    return True
+        return False
+
 
 class CapitalizedSentenceHeadInDocumentFeature(DocumentRelatedFeature):
     """
@@ -291,6 +301,22 @@ class CapitalizedInDocumentFeature(DocumentRelatedFeature):
         return self._get_label_for_word(words[t], doc)
 
 
+class UpperInDocumentFeature(DocumentRelatedFeature):
+    def __init__(self):
+        self.name = 'upper-in-doc'
+
+    def _get_label_for_word(self, word, doc):
+        upper_word = word.upper()
+        return self.tail_token_match_predicate(
+            doc, lambda tok: upper_word == tok
+        )
+
+    def get_value(self, t, words, **kwargs):
+        doc = kwargs.get("doc")
+        self.check_doc(doc)
+        return self._get_label_for_word(words[t], doc)
+    
+
 class LowercaseInDocumentFeature(DocumentRelatedFeature):
     """
     Whether the word appears lower-cased in the document.
@@ -328,6 +354,7 @@ DEFAULT_FEATURES = [
     CapitalizedInDocumentFeature(),
     CapitalizedSentenceHeadInDocumentFeature(),
     LowercaseInDocumentFeature(),
+    UpperInDocumentFeature(),
     FirstnameDictionaryFeature(),
 ]
 
