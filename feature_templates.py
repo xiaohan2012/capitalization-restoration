@@ -36,7 +36,7 @@ spelling_features = [
     (('all-letter-uppercase', 0), ),
     (('all-letter-lowercase', 0), ),
     (('begins-with-alphabetic', 0), ),
-    (('has-punct', 0), )
+    (('has-punct', 0), ),
     (('mixed-in-tail', 0), )
 ]
 
