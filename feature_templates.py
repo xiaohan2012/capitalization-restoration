@@ -1,11 +1,11 @@
 # Attribute templates.
 
-lexical_features = [ 
-    (('word',  1), ),
-    (('word',  -1), ),
-    (('word',  0), ),
-    (('word', -1), ('word',  0)),
-    (('word',  0), ('word',  1)),
+lexical_features = [
+    (('lemma',  1), ),
+    (('lemma',  -1), ),
+    (('lemma',  0), ),
+    (('lemma', -1), ('lemma',  0)),
+    (('lemma',  0), ('lemma',  1)),
 ]
 
 positional_features = [
@@ -17,6 +17,8 @@ dict_features = [
     (('upper-in-dict', 0), ),
     (('cap-in-dict', 0), ),
     (('orig-in-dict', 0), ),
+    (('first-name-in-dict', 0), ),
+    (('first-name-in-dict', -1), )
 ]
 
 pos_features = [
@@ -32,15 +34,17 @@ pos_features = [
 
 spelling_features = [
     (('all-letter-uppercase', 0), ),
-    # (('begins-with-alphabetic', 0), ),
+    (('all-letter-lowercase', 0), ),
+    (('begins-with-alphabetic', 0), ),
     (('has-punct', 0), )
+    (('mixed-in-tail', 0), )
 ]
 
-document_features = [(('indoccap', 0), ),
-                     (('indoclower', 0), ),
-                     (('indoccap', 0), ('lower-in-dict', 0)),
-                     (('indoccap', 0), ('upper-in-dict', 0)),
-                     (('indoccap', 0), ('cap-in-dict', 0))
+document_features = [(('cap-in-doc', 0), ),
+                     (('lower-in-doc', 0), ),
+                     (('cap-in-doc', 0), ('lower-in-dict', 0)),
+                     (('cap-in-doc', 0), ('upper-in-dict', 0)),
+                     (('cap-in-doc', 0), ('cap-in-dict', 0))
 ]
 
 id2featue = {
