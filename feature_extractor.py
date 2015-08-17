@@ -234,6 +234,36 @@ class DocumentRelatedFeature(Feature):
                     return True
         return False
 
+    def head_token_match_predicate(self, doc, func):
+        """
+        Check if any of the head tokens in the doc fulfill the `func`
+        """
+        for sent in doc:
+            if func(sent[0]):
+                return True
+        return False
+
+
+class CapitalizedSentenceHeadInDocumentFeature(DocumentRelatedFeature):
+    """
+    Whether the word appears capitalized at the sentence head of the document.
+    """
+    def __init__(self):
+        self.name = 'cap-sent-head-in-doc'
+
+    def _get_label_for_word(self, word, doc):
+        cap_word = unicode(word.capitalize())
+        return self.head_token_match_predicate(
+            doc, lambda tok: cap_word == tok
+        )
+
+    def get_value(self, t, words, **kwargs):
+        doc = kwargs.get("doc")
+
+        self.check_doc(doc)
+
+        return self._get_label_for_word(words[t], doc)
+        
 
 class CapitalizedInDocumentFeature(DocumentRelatedFeature):
     """
@@ -283,7 +313,8 @@ class LowercaseInDocumentFeature(DocumentRelatedFeature):
 
 
 DEFAULT_FEATURES = [
-    LemmaFeature(), IsLeadingWordFeature(),
+    LemmaFeature(),
+    IsLeadingWordFeature(),
     LowercaseInDictionaryFeature(),
     UppercaseInDictionaryFeature(),
     CapitalizedInDictionaryFeature(),
@@ -297,7 +328,6 @@ DEFAULT_FEATURES = [
     CapitalizedInDocumentFeature(),
     LowercaseInDocumentFeature(),
     FirstnameDictionaryFeature(),
-
 ]
 
 
