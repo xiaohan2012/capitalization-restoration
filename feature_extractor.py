@@ -172,10 +172,7 @@ class ContainsPunctuationFeature(Feature):
         return False
 
 
-class AllUppercaseFeature(Feature):
-    """
-    If the letters in word is all uppercased
-    """
+class StripNonAlphabeticalMixin(object):
     def __init__(self):
         exclude = unicode(string.punctuation + ''.join(
             [str(i)
@@ -183,12 +180,36 @@ class AllUppercaseFeature(Feature):
         )
         self.table = {ord(c): None
                       for c in exclude}
+
+
+class AllUppercaseFeature(Feature, StripNonAlphabeticalMixin):
+    """
+    If the letters in word is all uppercased
+    """
+    def __init__(self):
         self.name = "all-letter-uppercase"
+        super(AllUppercaseFeature, self).__init__()
 
     def get_value(self, t, words, **kwargs):
         word = words[t].translate(self.table)  # Remove punctuations + numbers
         if len(word) > 0:
             return (word.upper() == word)
+        else:
+            return False
+
+
+class AllLowercaseFeature(Feature, StripNonAlphabeticalMixin):
+    """
+    If the letters in word is all lowercased
+    """
+    def __init__(self):
+        self.name = "all-letter-lowercase"
+        super(AllLowercaseFeature, self).__init__()
+
+    def get_value(self, t, words, **kwargs):
+        word = words[t].translate(self.table)  # Remove punctuations + numbers
+        if len(word) > 0:
+            return (word.lower() == word)
         else:
             return False
 
@@ -267,13 +288,16 @@ DEFAULT_FEATURES = [
     UppercaseInDictionaryFeature(),
     CapitalizedInDictionaryFeature(),
     OriginalInDictionaryFeature(),
+    AllLowercaseFeature(),
     AllUppercaseFeature(),
+    MixedCaseInTailFeature(),
     BeginsWithAlphaFeature(),
     ContainsPunctuationFeature(),
     POSFeature(),
     CapitalizedInDocumentFeature(),
     LowercaseInDocumentFeature(),
-    FirstnameDictionaryFeature()
+    FirstnameDictionaryFeature(),
+
 ]
 
 

@@ -10,6 +10,7 @@ from capitalization_restoration.feature_extractor \
             CapitalizedInDictionaryFeature,
             OriginalInDictionaryFeature,
             AllUppercaseFeature,
+            AllLowercaseFeature,
             BeginsWithAlphaFeature,
             ContainsPunctuationFeature,
             POSFeature,
@@ -150,3 +151,13 @@ def test_MixedCaseInTailFeature():
     f = MixedCaseInTailFeature()
     assert_true(f.get_value(0, [u'iPhone']))
     assert_false(f.get_value(0, [u'Apple']))
+
+
+def test_AllLowercaseFeature():
+    f = AllLowercaseFeature()
+    assert_false(f.get_value(0, [u'iPhone']))
+    assert_false(f.get_value(0, [u'IBM']))
+    assert_true(f.get_value(0, [u'apple']))
+    assert_true(f.get_value(0, [u'12-year']))
+    assert_false(f.get_value(0, [u'12-Century']))
+    
