@@ -42,6 +42,7 @@ spelling_features = [
 
 document_features = [(('cap-in-doc', 0), ),
                      (('lower-in-doc', 0), ),
+                     (('cap-sent-head-in-doc', 0), ),
                      (('cap-in-doc', 0), ('lower-in-dict', 0)),
                      (('cap-in-doc', 0), ('upper-in-dict', 0)),
                      (('cap-in-doc', 0), ('cap-in-dict', 0))

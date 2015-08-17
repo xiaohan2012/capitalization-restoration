@@ -326,6 +326,7 @@ DEFAULT_FEATURES = [
     ContainsPunctuationFeature(),
     POSFeature(),
     CapitalizedInDocumentFeature(),
+    CapitalizedSentenceHeadInDocumentFeature(),
     LowercaseInDocumentFeature(),
     FirstnameDictionaryFeature(),
 ]
