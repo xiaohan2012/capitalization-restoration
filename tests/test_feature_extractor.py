@@ -160,4 +160,3 @@ def test_AllLowercaseFeature():
     assert_true(f.get_value(0, [u'apple']))
     assert_true(f.get_value(0, [u'12-year']))
     assert_false(f.get_value(0, [u'12-Century']))
-    

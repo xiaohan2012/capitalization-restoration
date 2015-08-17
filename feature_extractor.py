@@ -278,7 +278,7 @@ class CapitalizedInDocumentFeature(DocumentRelatedFeature):
         self.name = "cap-in-doc"
     
     def _get_label_for_word(self, word, doc):
-        cap_word = unicode(word[0].upper() + word[1:])
+        cap_word = unicode(word.capitalize())
         return self.tail_token_match_predicate(
             doc, lambda tok: cap_word == tok
         )
