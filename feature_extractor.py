@@ -18,9 +18,11 @@ class WordFeature(Feature):
     """
     def __init__(self):
         self.name = "word"
+        self.replace_digit_regexp = re.compile(r"[0-9]")
+        self.replace_str = '_DIG_'
 
-    def get_value(cls, t, words, **kwargs):
-        return words[t]
+    def get_value(self, t, words, **kwargs):
+        return self.replace_digit_regexp.sub(self.replace_str, words[t])
 
 
 class LemmaFeature(Feature):
@@ -357,7 +359,6 @@ class LowercaseInDocumentFeature(DocumentRelatedFeature,
 
 
 DEFAULT_FEATURES = [
-    WordFeature(),
     LemmaFeature(),
     IsLeadingWordFeature(),
     LowercaseInDictionaryFeature(),

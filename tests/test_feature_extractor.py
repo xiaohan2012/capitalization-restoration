@@ -71,6 +71,19 @@ def test_FeatureExtractor_china_example():
     assert_false(feats[0]['lower-in-doc'])
     assert_true(feats[0]['upper-in-doc'])
 
+    assert_true(feats[0]['begins-with-alphabetic'])
+    assert_true(feats[0]['cap-in-doc'])
+    assert_false(feats[0]['lower-in-doc'])
+    assert_true(feats[0]['upper-in-doc'])
+
+    assert_false(feats[1]['upper-in-doc'])
+    assert_false(feats[1]['lower-in-doc'])
+    assert_false(feats[1]['cap-in-doc'])
+    
+    assert_false(feats[2]['upper-in-dict'])
+    assert_true(feats[2]['lower-in-dict'])
+    assert_false(feats[2]['cap-in-dict'])
+
 
 def test_LemmaFeature():
     words = ['I', 'love', 'those', 'games', 12345, 'hao123']
@@ -90,6 +103,7 @@ def test_LemmaFeature():
 def test_WordFeature():
     feat = WordFeature()
     assert_equal('company', feat.get_value(0, ["company"]))
+    assert_equal('hao_DIG__DIG__DIG_', feat.get_value(0, ["hao123"]))
 
 
 def test_POSFeature():
