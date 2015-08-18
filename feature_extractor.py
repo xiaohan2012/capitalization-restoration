@@ -234,30 +234,22 @@ class DocumentRelatedFeature(Feature):
         """
         Check if any of the tail tokens in the doc fulfill the `func`
         """
-        for sent in doc:
-            for tok in sent[1:]:  # ignore the heading word
-                if func(tok):
-                    return True
-        return False
+        valid_toks = [tok for sent in doc for tok in sent[1:] if func(tok)]
+        return len(valid_toks) > 0
 
     def head_token_match_predicate(self, doc, func):
         """
         Check if any of the head tokens in the doc fulfill the `func`
         """
-        for sent in doc:
-            if func(sent[0]):
-                return True
-        return False
+        valid_toks = [sent[0] for sent in doc if func(sent[0])]
+        return len(valid_toks) > 0
 
     def every_token_match_predicate(self, doc, func):
         """
         Check if any of the tokens in the doc fulfill the `func`
         """
-        for sent in doc:
-            for tok in sent:  # ignore the heading word
-                if func(tok):
-                    return True
-        return False
+        valid_toks = [tok for sent in doc for tok in sent if func(tok)]
+        return len(valid_toks) > 0
 
 
 class CapitalizedSentenceHeadInDocumentFeature(DocumentRelatedFeature,
