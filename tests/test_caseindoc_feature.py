@@ -4,12 +4,14 @@ from capitalization_restoration.feature_extractor import (DocumentRelatedFeature
                                                           CapitalizedInDocumentFeature,
                                                           LowercaseInDocumentFeature,
                                                           CapitalizedSentenceHeadInDocumentFeature,
-                                                          UpperInDocumentFeature)
+                                                          UppercaseInDocumentFeature)
 
 doc = [
-    'But Ben van Beurden, chief executive of Shell'.split(),
-    "Shell's oil and gas business".split(),
-    "Some of them ( Shell projects ) may be put on pause IBM".split(),
+    'But Ben van Beurden , chief executive of Shell'.split(),
+    "Shell 's oil and gas business".split(),
+    "Some of them ( Shell projects ) may be put on pause IBM 12345".split(),
+    "12345 , _good_".split(),
+    "HAO hehe".split(),
 ]
 
 
@@ -33,7 +35,7 @@ def test_DocumentRelatedFeature():
         lambda t: t == 'But')
     )
 
-    assert_true(f.token_match_predicate(
+    assert_true(f.every_token_match_predicate(
         doc,
         lambda t: t == 'Shell')
     )
@@ -60,6 +62,18 @@ def test_CapitalizedSentenceHeadInDocumentFeature():
 
 
 def test_UpperInDocumentFeature():
-    f = UpperInDocumentFeature()
+    f = UppercaseInDocumentFeature()
     assert_true(f.get_value(0, ['ibm'], doc=doc))
+    assert_true(f.get_value(0, ['hao'], doc=doc))
     assert_false(f.get_value(0, ['ben'], doc=doc))
+
+
+def test_non_alpha_values():
+    feats = [CapitalizedInDocumentFeature(),
+             CapitalizedSentenceHeadInDocumentFeature(),
+             UppercaseInDocumentFeature(),
+             LowercaseInDocumentFeature()]
+    words = [',', '12345', '_good_']
+    for f in feats:
+        for i in xrange(len(words)):
+            assert_false(f.get_value(i, words, doc=doc))

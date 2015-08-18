@@ -1,4 +1,5 @@
 import os
+import re
 import string
 
 from dictionary import ItemListDictionary
@@ -31,6 +32,8 @@ class LemmaFeature(Feature):
     """
     def __init__(self):
         self.name = "lemma"
+        self.replace_digit_regexp = re.compile(r"[0-9]")
+        self.replace_str = '_DIG_'
 
     def get_value(self, t, words, **kwargs):
         if 'lemma' in kwargs:
@@ -38,7 +41,7 @@ class LemmaFeature(Feature):
             if isinstance(l, basestring) and len(l) == 0:
                 return words[t]
             else:
-                return l
+                return self.replace_digit_regexp.sub(self.replace_str, str(l))
         else:
             raise KeyError("'lemma' is not in arguments")
 
@@ -106,8 +109,11 @@ class BeginsWithAlphaFeature(Feature):
     def __init__(self):
         self.name = "begins-with-alphabetic"
 
+    def begins_with_alpha(self, word):
+        return word[0].isalpha()
+
     def get_value(self, t, words, **kwargs):
-        return words[t][0].isalpha()
+        return self.begins_with_alpha(words[t])
 
 
 unix_dictionary = ItemListDictionary(CURDIR + "/data/dict/unix.txt")
@@ -187,8 +193,8 @@ class AllUppercaseFeature(Feature, StripNonAlphabeticalMixin):
     If the letters in word is all uppercased
     """
     def __init__(self):
-        self.name = "all-letter-uppercase"
         super(AllUppercaseFeature, self).__init__()
+        self.name = "all-letter-uppercase"
 
     def get_value(self, t, words, **kwargs):
         word = words[t].translate(self.table)  # Remove punctuations + numbers
@@ -203,8 +209,8 @@ class AllLowercaseFeature(Feature, StripNonAlphabeticalMixin):
     If the letters in word is all lowercased
     """
     def __init__(self):
-        self.name = "all-letter-lowercase"
         super(AllLowercaseFeature, self).__init__()
+        self.name = "all-letter-lowercase"
 
     def get_value(self, t, words, **kwargs):
         word = words[t].translate(self.table)  # Remove punctuations + numbers
@@ -243,7 +249,7 @@ class DocumentRelatedFeature(Feature):
                 return True
         return False
 
-    def token_match_predicate(self, doc, func):
+    def every_token_match_predicate(self, doc, func):
         """
         Check if any of the tokens in the doc fulfill the `func`
         """
@@ -254,13 +260,15 @@ class DocumentRelatedFeature(Feature):
         return False
 
 
-class CapitalizedSentenceHeadInDocumentFeature(DocumentRelatedFeature):
+class CapitalizedSentenceHeadInDocumentFeature(DocumentRelatedFeature,
+                                               BeginsWithAlphaFeature):
     """
     Whether the word appears capitalized at the sentence head of the document.
     """
     def __init__(self):
+        super(CapitalizedSentenceHeadInDocumentFeature, self).__init__()
         self.name = 'cap-sent-head-in-doc'
-
+        
     def _get_label_for_word(self, word, doc):
         cap_word = unicode(word.capitalize())
         return self.head_token_match_predicate(
@@ -268,14 +276,18 @@ class CapitalizedSentenceHeadInDocumentFeature(DocumentRelatedFeature):
         )
 
     def get_value(self, t, words, **kwargs):
-        doc = kwargs.get("doc")
-
-        self.check_doc(doc)
-
-        return self._get_label_for_word(words[t], doc)
+        if self.begins_with_alpha(words[t]):
+            doc = kwargs.get("doc")
+            
+            self.check_doc(doc)
+            
+            return self._get_label_for_word(words[t], doc)
+        else:
+            return False
         
 
-class CapitalizedInDocumentFeature(DocumentRelatedFeature):
+class CapitalizedInDocumentFeature(DocumentRelatedFeature,
+                                   BeginsWithAlphaFeature):
     """
     Whether the word appears capitalized in the document.
 
@@ -285,8 +297,9 @@ class CapitalizedInDocumentFeature(DocumentRelatedFeature):
 
     """
     def __init__(self):
+        super(CapitalizedInDocumentFeature, self).__init__()
         self.name = "cap-in-doc"
-    
+
     def _get_label_for_word(self, word, doc):
         cap_word = unicode(word.capitalize())
         return self.tail_token_match_predicate(
@@ -294,36 +307,46 @@ class CapitalizedInDocumentFeature(DocumentRelatedFeature):
         )
 
     def get_value(self, t, words, **kwargs):
-        doc = kwargs.get("doc")
+        if self.begins_with_alpha(words[t]):
+            doc = kwargs.get("doc")
 
-        self.check_doc(doc)
+            self.check_doc(doc)
 
-        return self._get_label_for_word(words[t], doc)
+            return self._get_label_for_word(words[t], doc)
+        else:
+            return False
 
 
-class UpperInDocumentFeature(DocumentRelatedFeature):
+class UppercaseInDocumentFeature(DocumentRelatedFeature,
+                                 BeginsWithAlphaFeature):
     def __init__(self):
+        super(UppercaseInDocumentFeature, self).__init__()
         self.name = 'upper-in-doc'
-
+        
     def _get_label_for_word(self, word, doc):
         upper_word = word.upper()
-        return self.tail_token_match_predicate(
+        return self.every_token_match_predicate(
             doc, lambda tok: upper_word == tok
         )
 
     def get_value(self, t, words, **kwargs):
-        doc = kwargs.get("doc")
-        self.check_doc(doc)
-        return self._get_label_for_word(words[t], doc)
+        if self.begins_with_alpha(words[t]):
+            doc = kwargs.get("doc")
+            self.check_doc(doc)
+            return self._get_label_for_word(words[t], doc)
+        else:
+            return False
     
 
-class LowercaseInDocumentFeature(DocumentRelatedFeature):
+class LowercaseInDocumentFeature(DocumentRelatedFeature,
+                                 BeginsWithAlphaFeature):
     """
     Whether the word appears lower-cased in the document.
 
     In this case, we don't consider it as lower-cased
     """
     def __init__(self):
+        super(LowercaseInDocumentFeature, self).__init__()
         self.name = "lower-in-doc"
 
     def _get_label_for_word(self, word, doc):
@@ -333,12 +356,16 @@ class LowercaseInDocumentFeature(DocumentRelatedFeature):
         )
 
     def get_value(self, t, words, **kwargs):
-        doc = kwargs.get("doc")
-        self.check_doc(doc)
-        return self._get_label_for_word(words[t], doc)
+        if self.begins_with_alpha(words[t]):
+            doc = kwargs.get("doc")
+            self.check_doc(doc)
+            return self._get_label_for_word(words[t], doc)
+        else:
+            return False
 
 
 DEFAULT_FEATURES = [
+    WordFeature(),
     LemmaFeature(),
     IsLeadingWordFeature(),
     LowercaseInDictionaryFeature(),
@@ -354,7 +381,7 @@ DEFAULT_FEATURES = [
     CapitalizedInDocumentFeature(),
     CapitalizedSentenceHeadInDocumentFeature(),
     LowercaseInDocumentFeature(),
-    UpperInDocumentFeature(),
+    UppercaseInDocumentFeature(),
     FirstnameDictionaryFeature(),
 ]
 
@@ -388,3 +415,6 @@ class FeatureExtractor(object):
     @property
     def feature_names(self):
         return [feature.name for feature in self.features]
+
+if __name__ == '__main__':
+    print('\t'.join([f.name for f in DEFAULT_FEATURES]))

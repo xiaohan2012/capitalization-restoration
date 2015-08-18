@@ -16,12 +16,13 @@ from capitalization_restoration.feature_extractor \
             POSFeature,
             CapitalizedInDocumentFeature,
             LowercaseInDocumentFeature,
+            UppercaseInDocumentFeature,
             GenericDitionaryFeature,
             FirstnameDictionaryFeature,
             MixedCaseInTailFeature)
 from capitalization_restoration.dictionary import ItemListDictionary
 
-from capitalization_restoration.tests.data import load_turkish_example
+from capitalization_restoration.tests.data import (load_turkish_example, load_china_example)
 
 
 CURDIR = os.path.dirname(os.path.realpath(__file__))
@@ -38,14 +39,15 @@ feats_extractors = [
     ContainsPunctuationFeature(),
     POSFeature(),
     CapitalizedInDocumentFeature(),
-    LowercaseInDocumentFeature()
+    LowercaseInDocumentFeature(),
+    UppercaseInDocumentFeature()
 ]
 
 
 def test_FeatureExtractor():
-    toks, tags, doc = load_turkish_example()
+    toks, lemmas, tags, doc = load_turkish_example()
     ext = FeatureExtractor(feats_extractors)
-    feats = ext.extract(toks, pos=tags, doc=doc)
+    feats = ext.extract(toks, pos=tags, doc=doc, lemma=lemmas)
     assert_equal(len(toks), len(feats))
     for tok in feats:
         assert_equal(len(tok), len(feats_extractors))
@@ -57,11 +59,27 @@ def test_FeatureExtractor():
     assert_true(feats[6]['lower-in-doc'])
 
 
+def test_FeatureExtractor_china_example():
+    toks, lemmas, tags, doc = load_china_example()
+    ext = FeatureExtractor(feats_extractors)
+    feats = ext.extract(toks, pos=tags, doc=doc,
+                        lemma=lemmas)
+    
+    # China
+    assert_true(feats[0]['begins-with-alphabetic'])
+    assert_true(feats[0]['cap-in-doc'])
+    assert_false(feats[0]['lower-in-doc'])
+    assert_true(feats[0]['upper-in-doc'])
+
+
 def test_LemmaFeature():
-    words = ['I', 'love', 'those', 'games', '12345']
-    input_lemma = ['i', 'love', 'those', 'game', '']
+    words = ['I', 'love', 'those', 'games', 12345, 'hao123']
+    input_lemma = ['i', 'love', 'those', 'game', 12345, 'hao123']
     expected_lemma = input_lemma[:]
-    expected_lemma[-1] = '12345'
+
+    expected_lemma[-2] = '_DIG_' * 5
+    expected_lemma[-1] = 'hao_DIG__DIG__DIG_'
+
     feat = LemmaFeature()
     assert_equal(feat.name, 'lemma')
     for i in xrange(len(expected_lemma)):
@@ -89,6 +107,7 @@ def test_IsLeadingWordFeature():
 def test_BeginsWithAlphaFeature():
     f = BeginsWithAlphaFeature()
     assert_true(f.get_value(0, ["company"]))
+    assert_true(f.get_value(0, ["China"]))
     assert_false(f.get_value(0, ["123"]))
 
 
