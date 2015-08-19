@@ -12,20 +12,28 @@ class Feature(object):
         raise NotImplementedError
 
 
-class WordFeature(Feature):
+class TokenNormalizer(object):
+    def __init__(self):
+        self.replace_digit_regexp = re.compile(r"[0-9]")
+        self.replace_str = '_DIG_'
+
+    def digitalize(self, word):
+        return self.replace_digit_regexp.sub(self.replace_str, word)
+
+        
+class WordFeature(Feature, TokenNormalizer):
     """
     The word feature
     """
     def __init__(self):
         self.name = "word"
-        self.replace_digit_regexp = re.compile(r"[0-9]")
-        self.replace_str = '_DIG_'
+        super(WordFeature, self).__init__()
 
     def get_value(self, t, words, **kwargs):
-        return self.replace_digit_regexp.sub(self.replace_str, words[t])
+        return self.digitalize(words[t])
 
 
-class LemmaFeature(Feature):
+class LemmaFeature(Feature, TokenNormalizer):
     """
     The lemma feature
 
@@ -34,8 +42,7 @@ class LemmaFeature(Feature):
     """
     def __init__(self):
         self.name = "lemma"
-        self.replace_digit_regexp = re.compile(r"[0-9]")
-        self.replace_str = '_DIG_'
+        super(LemmaFeature, self).__init__()
 
     def get_value(self, t, words, **kwargs):
         if 'lemma' in kwargs:
@@ -43,7 +50,7 @@ class LemmaFeature(Feature):
             if isinstance(l, basestring) and len(l) == 0:
                 return words[t]
             else:
-                return self.replace_digit_regexp.sub(self.replace_str, str(l))
+                return self.digitalize(unicode(l))
         else:
             raise KeyError("'lemma' is not in arguments")
 
@@ -359,7 +366,7 @@ class LowercaseInDocumentFeature(DocumentRelatedFeature,
 
 
 DEFAULT_FEATURES = [
-    LemmaFeature(),
+    WordFeature(),
     IsLeadingWordFeature(),
     LowercaseInDictionaryFeature(),
     UppercaseInDictionaryFeature(),

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 from nose.tools import assert_equal, assert_false, assert_true
 
@@ -19,7 +21,9 @@ from capitalization_restoration.feature_extractor \
             UppercaseInDocumentFeature,
             GenericDitionaryFeature,
             FirstnameDictionaryFeature,
-            MixedCaseInTailFeature)
+            MixedCaseInTailFeature,
+            TokenNormalizer,
+    )
 from capitalization_restoration.dictionary import ItemListDictionary
 
 from capitalization_restoration.tests.data import (load_turkish_example, load_china_example)
@@ -43,6 +47,12 @@ feats_extractors = [
     UppercaseInDocumentFeature()
 ]
 
+
+def test_digitalize():
+    n = TokenNormalizer()
+    assert_equal(n.digitalize('123'), '_DIG_' * 3)
+    assert_equal(n.digitalize(u'\xe9'), u'\xe9')
+    
 
 def test_FeatureExtractor():
     toks, lemmas, tags, doc = load_turkish_example()
@@ -86,8 +96,8 @@ def test_FeatureExtractor_china_example():
 
 
 def test_LemmaFeature():
-    words = ['I', 'love', 'those', 'games', 12345, 'hao123']
-    input_lemma = ['i', 'love', 'those', 'game', 12345, 'hao123']
+    words = ['I', 'love', 'those', 'games', u'\xe9', 12345, 'hao123']
+    input_lemma = ['i', 'love', 'those', 'game', u'\xe9', 12345, 'hao123', ]
     expected_lemma = input_lemma[:]
 
     expected_lemma[-2] = '_DIG_' * 5
