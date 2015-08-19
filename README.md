@@ -28,7 +28,7 @@ POS tags can be passed in the request so that `NLTK.pos_tag` is not called. For 
 
 First, open the web service:
 
-    >>> python capitalization_restoration_service.py
+    >>> python service.py
 
 Second, 
 
