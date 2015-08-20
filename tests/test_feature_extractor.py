@@ -59,14 +59,15 @@ def test_FeatureExtractor():
     ext = FeatureExtractor(feats_extractors)
     feats = ext.extract(toks, pos=tags, doc=doc, lemma=lemmas)
     assert_equal(len(toks), len(feats))
-    for tok in feats:
-        assert_equal(len(tok), len(feats_extractors))
 
     assert_equal(feats[3]['word'], 'Lithuanian')
-    assert_false(feats[3]['cap-in-doc'])
 
     assert_equal(feats[6]['word'], 'Business')
     assert_true(feats[6]['lower-in-doc'])
+
+    # False value should not be there
+    assert_true('has-punct' not in feats[3])
+    assert_true('cap-in-doc' not in feats[3])
 
 
 def test_FeatureExtractor_china_example():
@@ -78,21 +79,21 @@ def test_FeatureExtractor_china_example():
     # China
     assert_true(feats[0]['begins-with-alphabetic'])
     assert_true(feats[0]['cap-in-doc'])
-    assert_false(feats[0]['lower-in-doc'])
+    assert_false('lower-in-doc' in feats[0])
     assert_true(feats[0]['upper-in-doc'])
 
     assert_true(feats[0]['begins-with-alphabetic'])
     assert_true(feats[0]['cap-in-doc'])
-    assert_false(feats[0]['lower-in-doc'])
+    assert_false('lower-in-doc' in feats[0])
     assert_true(feats[0]['upper-in-doc'])
 
-    assert_false(feats[1]['upper-in-doc'])
-    assert_false(feats[1]['lower-in-doc'])
-    assert_false(feats[1]['cap-in-doc'])
+    assert_false('upper-in-docf' in feats[1])
+    assert_false('lower-in-doc' in feats[1])
+    assert_false('cap-in-doc' in feats[1])
     
-    assert_false(feats[2]['upper-in-dict'])
+    assert_false('upper-in-dict' in feats[2])
     assert_true(feats[2]['lower-in-dict'])
-    assert_false(feats[2]['cap-in-dict'])
+    assert_false('cap-in-dictf' in feats[2])
 
 
 def test_LemmaFeature():
