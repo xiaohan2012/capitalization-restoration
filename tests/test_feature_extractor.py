@@ -69,6 +69,21 @@ def test_FeatureExtractor():
     assert_true(feats[6]['lower-in-doc'])
 
 
+def test_FeatureExtractor_convert_bool():
+    toks, lemmas, tags, doc = load_turkish_example()
+    ext = FeatureExtractor(feats_extractors, convert_bool=True)
+    feats = ext.extract(toks, pos=tags, doc=doc, lemma=lemmas)
+    assert_equal(len(toks), len(feats))
+    for tok in feats:
+        assert_equal(len(tok), len(feats_extractors))
+
+    assert_equal(feats[3]['word'], 'Lithuanian')
+    assert_equal(feats[3]['cap-in-doc'], '--F')
+
+    assert_equal(feats[6]['word'], 'Business')
+    assert_equal(feats[6]['lower-in-doc'], '--T')
+
+
 def test_FeatureExtractor_china_example():
     toks, lemmas, tags, doc = load_china_example()
     ext = FeatureExtractor(feats_extractors)
