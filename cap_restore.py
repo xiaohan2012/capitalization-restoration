@@ -83,10 +83,13 @@ class Restorer(object):
 
         words_with_features = self.extractor.extract(sent, *args, **kwargs)
 
-        for word in words_with_features:  # accord to crfsuite 
+        for word in words_with_features:  # accord to crfsuite
             word["F"] = []
-
-        return self.tagger.tag(apply_templates(words_with_features, self.templates))
+            
+        print(words_with_features)
+        return self.tagger.tag(
+            apply_templates(words_with_features, self.templates)
+        )
 
     def restore(self, sent, *args, **kwargs):
         labels = self.get_labels(sent, *args, **kwargs)
@@ -96,25 +99,23 @@ class Restorer(object):
 def transform_words_by_labels(words, labels):
     """
     Transform words capitalization by labels
-
-    >>> words = [u'I', u'Compared', u'PaaS', u'Providers', u':', u'Heroku', u'and', u"IBM", u"'s", u'Bluemix', u'.']
-    >>> transform_words_by_labels(words, [u'AU', u'AL', u'MX', u'AL', u'AN', u'IC', u'AL', u'AU', u'AL', u'IC', u'AN'])
-    [u'I', u'compared', u'PaaS', u'providers', u':', u'Heroku', u'and', u'IBM', u"'s", u'Bluemix', u'.']
     """
     assert len(words) == len(labels)
-
+    print(labels)
     new_words = []
     for w, l in zip(words, labels):
         if l == "IC":
-            new_words.append(w[0].upper() + w[1:])
+            new_words.append(w.capitalize())
         elif l == "AL":
             new_words.append(w.lower())
         elif l == "AU":
             new_words.append(w.upper())
-        elif l == "MX" or l == "AN": # TODO: handle more complex cases for all uppercase or all lowercase input
+        elif l == "MX" or l == "AN":
+            # TODO: handle more complex cases for
+            # all uppercase or all lowercase input
             new_words.append(w)
         else:
-            raise ValueError("Unknown label %s" %(l))
+            raise ValueError("Unknown label %s" % (l))
 
     return new_words
 
@@ -122,11 +123,13 @@ def transform_words_by_labels(words, labels):
 class DefaultRestorer(MultiPurposeRestorer):
     def __init__(self):
         cur_path = os.path.abspath(os.path.dirname(__file__))
-        super(DefaultRestorer, self).__init__(os.path.join(cur_path, 'models/cap_model.bin'),
-                                              os.path.join(cur_path, 'models/lower_model.bin'),
-                                              os.path.join(cur_path, 'models/upper_model.bin'),
-                                              FeatureExtractor(),
-                                              load_feature_templates())
+        super(DefaultRestorer, self).__init__(
+            os.path.join(cur_path, 'models/cap_model.bin'),
+            os.path.join(cur_path, 'models/lower_model.bin'),
+            os.path.join(cur_path, 'models/upper_model.bin'),
+            FeatureExtractor(),
+            load_feature_templates()
+        )
 
 
 class PulsRestorer(Restorer):
