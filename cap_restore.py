@@ -1,5 +1,7 @@
 # coding: utf-8
 import os
+import time
+import calendar
 import sys
 import pycrfsuite
 from feature_extractor import FeatureExtractor
@@ -74,19 +76,42 @@ class Restorer(object):
                  feature_extractor=FeatureExtractor(),
                  feature_templates=load_feature_templates()):
         self.tagger = pycrfsuite.Tagger()
+        
+        start = calendar.timegm(time.gmtime())
         self.tagger.open(model_path)
+
         self.extractor = feature_extractor
         self.templates = feature_templates
+
+        self.dump = self.tagger.info()
+        
+        print("loading model takes {}".format(
+            calendar.timegm(time.gmtime()) - start)
+        )
 
     def get_labels(self, sent, *args, **kwargs):
         assert isinstance(sent, list)
 
         words_with_features = self.extractor.extract(sent, *args, **kwargs)
-
-        for word in words_with_features:  # accord to crfsuite
-            word["F"] = []
             
-        print(words_with_features)
+        templated_features = apply_templates(words_with_features,
+                                             self.templates)
+
+        # DEBUG
+        rows = []
+        feats = []
+        if 'word[0]=Will' in templated_features[1]:
+            for feat in templated_features[1]:
+                feats.append(feat)
+                rows.append((self.dump.state_features.get((feat, 'AL'), 0.0),
+                             self.dump.state_features.get((feat, 'IC'), 0.0))
+                )
+            import pandas as pds
+            df = pds.DataFrame(rows, index=feats, columns=('AL', 'IC'))
+            print(df)
+            print(df.sum(axis=0))
+
+        # print(words_with_features)
         return self.tagger.tag(
             apply_templates(words_with_features, self.templates)
         )
