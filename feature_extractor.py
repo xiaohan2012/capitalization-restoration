@@ -405,12 +405,8 @@ class FeatureExtractor(object):
         for i in xrange(len(sent)):
             word = {}
             for feature in self.features:
-                value = feature.get_value(i, sent,
-                                          **kwargs)
-                # if value is False,
-                # it's left absent
-                if value is not False:
-                    word[feature.name] = value
+                word[feature.name] = feature.get_value(i, sent,
+                                                       **kwargs)
 
             words_with_features.append(word)
 
