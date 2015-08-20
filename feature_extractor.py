@@ -390,15 +390,12 @@ class FeatureExtractor(object):
     """
     Extract features for sentence
     """
-    def __init__(self, features=DEFAULT_FEATURES, convert_bool=False):
+    def __init__(self, features=DEFAULT_FEATURES):
         self.features = features
         for feat in self.features:
             assert hasattr(feat, 'name')
             assert feat.name != None, \
                 '{} should have a name'.format(feat.__class__)
-        self.convert_bool = convert_bool
-        self.bool2str_map = {True: '--T',
-                             False: '--F'}
 
     def extract(self, sent, *args, **kwargs):
         """Expect unicode strings"""
@@ -408,11 +405,8 @@ class FeatureExtractor(object):
         for i in xrange(len(sent)):
             word = {}
             for feature in self.features:
-                value = feature.get_value(i, sent,
-                                          **kwargs)
-                if self.convert_bool and isinstance(value, bool):
-                    value = self.bool2str_map[value]
-                word[feature.name] = value
+                word[feature.name] = feature.get_value(i, sent,
+                                                       **kwargs)
 
             words_with_features.append(word)
 
