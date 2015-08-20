@@ -40,3 +40,14 @@ def test_apply_templates():
     assert_true(u'cap-in-doc[0]=False' not in templ_feats[0])
     assert_true(u'lower-in-doc[0]=True' in templ_feats[0])
     assert_true(u'cap-in-doc[-1]=False' not in templ_feats[1])
+
+
+def test_apply_templates_with_bool_converted():
+    toks, lemmas, tags, doc = load_turkish_example()
+    ext = FeatureExtractor(features, convert_bool=True)
+    feats = ext.extract(toks, pos=tags, doc=doc, lemma=lemmas)
+    templ_feats = apply_templates(feats, templates)
+
+    assert_true(u'cap-in-doc[0]=--F' not in templ_feats[0])
+    assert_true(u'lower-in-doc[0]=--T' in templ_feats[0])
+    assert_true(u'cap-in-doc[-1]=--F' not in templ_feats[1])
