@@ -42,6 +42,8 @@ spelling_features = [
 
 document_features = [(('cap-in-doc', 0), ),
                      (('lower-in-doc', 0), ),
+                     (('cap-in-doc', -1), ('cap-in-doc', 0), ('lower-in-doc', 0)),
+                     (('cap-in-doc', 0), ('lower-in-doc', 0)),
                      (('upper-in-doc', 0), ),
                      (('cap-sent-head-in-doc', 0), ),
                      (('cap-in-doc', 0), ('lower-in-dict', 0)),
@@ -81,9 +83,21 @@ def apply_templates(X, templates):
     @type   template:   tuple of (unicode, int)
     @param  template:   The feature template.
     """
+
+    for x in X:  # accord to crfsuite
+        x["F"] = []
+
     for template in templates:
         name = '|'.join(['%s[%d]' % (f, o) for f, o in template])
         for t in range(len(X)):
+            # ignore template that contain only one feature
+            # meanwhile the feature value is False(inactivated)
+            if len(template) == 1:
+                field, offset = template[0]
+                p = t + offset
+                if p in range(len(X)) and X[p][field] is False:
+                    continue
+
             values = []
             for field, offset in template:
                 p = t + offset
@@ -99,4 +113,4 @@ def apply_templates(X, templates):
         X[0]['F'].append('__BOS__')     # BOS feature
         X[-1]['F'].append('__EOS__')    # EOS feature
 
-    return [x["F"] for x in X] #get the F out
+    return [x["F"] for x in X]  # get the F out
