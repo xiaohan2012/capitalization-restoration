@@ -15,31 +15,53 @@ doc = [
 ]
 
 
-def test_DocumentRelatedFeature():
+def test_DocumentRelatedFeature_unigram():
     f = DocumentRelatedFeature()
     assert_raises(TypeError, f.check_doc, 1)
     assert_raises(TypeError,
                   f.check_doc, [['a', 'a'], None])
 
-    assert_false(f.tail_token_match_predicate(
+    assert_false(f.tail_unigram_match_predicate(
         doc,
         lambda t: t == 'but')
     )
-    assert_false(f.tail_token_match_predicate(
+    assert_false(f.tail_unigram_match_predicate(
         doc,
         lambda t: t == 'But')
     )
 
-    assert_true(f.head_token_match_predicate(
+    assert_true(f.head_unigram_match_predicate(
         doc,
         lambda t: t == 'But')
     )
 
-    assert_true(f.every_token_match_predicate(
+    assert_true(f.every_unigram_match_predicate(
         doc,
         lambda t: t == 'Shell')
     )
 
+
+def test_DocumentRelatedFeature_bigram():
+    f = DocumentRelatedFeature()
+    assert_true(f.every_bigram_match_predicate(
+        doc,
+        lambda bg: bg == ('Shell', "'s"))
+    )
+    assert_false(f.every_bigram_match_predicate(
+        doc,
+        lambda bg: bg == ('hao', 'hehe'))
+    )
+
+    assert_false(f.tail_bigram_match_predicate(
+        doc,
+        lambda bg: bg == ('Shell', "'s"))
+    )
+
+    assert_true(f.tail_bigram_match_predicate(
+        doc,
+        lambda bg: bg == ('of', 'them'))
+    )
+    
 
 def test_capindoc():
     f = CapitalizedInDocumentFeature()

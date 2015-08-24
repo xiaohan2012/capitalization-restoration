@@ -239,26 +239,88 @@ class DocumentRelatedFeature(Feature):
             raise TypeError('doc/sent type should be list, is {} instead'
                             .format(type(doc)))
 
-    def tail_token_match_predicate(self, doc, func):
+    def tail_unigram_match_predicate(self, doc, func):
         """
         Check if any of the tail tokens in the doc fulfill the `func`
         """
         valid_toks = [tok for sent in doc for tok in sent[1:] if func(tok)]
         return len(valid_toks) > 0
 
-    def head_token_match_predicate(self, doc, func):
+    def head_unigram_match_predicate(self, doc, func):
         """
         Check if any of the head tokens in the doc fulfill the `func`
         """
         valid_toks = [sent[0] for sent in doc if func(sent[0])]
         return len(valid_toks) > 0
 
-    def every_token_match_predicate(self, doc, func):
+    def every_unigram_match_predicate(self, doc, func):
         """
         Check if any of the tokens in the doc fulfill the `func`
         """
         valid_toks = [tok for sent in doc for tok in sent if func(tok)]
         return len(valid_toks) > 0
+
+    def every_bigram_match_predicate(self, doc, func):
+        """
+        Check if any of the bigram tokens in the doc fulfill the `func`
+        
+        Signature of `func`: lambda (prev_word, cur_word): blah
+        """
+        valid_bigrams = [bigram
+                         for sent in doc
+                         for bigram in zip(sent, sent[1:])
+                         if func(bigram)]
+        return len(valid_bigrams) > 0
+
+    def tail_bigram_match_predicate(self, doc, func):
+        """
+        Check if any of the bigram tokens in the doc fulfill the `func`
+        
+        Signature of `func`: lambda (prev_word, cur_word): blah
+
+        Note: the first bigram is ignored
+        """
+        valid_bigrams = [bigram
+                         for sent in doc
+                         for bigram in zip(sent[1:], sent[2:])
+                         if func(bigram)]
+        return len(valid_bigrams) > 0
+
+
+class CapitalizedWithPreviousWordInDocument(DocumentRelatedFeature):
+    def __init__(self):
+        self.name = 'cap-with-prev-word-in-doc'
+        
+    def get_value(self, t, words, **kwargs):
+        if t == 0:
+            return False
+        else:
+            doc = kwargs.get("doc")
+            self.check_doc(doc)
+            target_prev_word = words[t-1].lower()
+            target_cur_word = words[t].capitalize()
+            predicate = (lambda (prev_w, cur_w):
+                         prev_w.lower() == target_prev_word and
+                         cur_w == target_cur_word)
+            return self.every_bigram_match_predicate(doc, predicate)
+
+
+class CapitalizedWithNextWordInDocument(DocumentRelatedFeature):
+    def __init__(self):
+        self.name = 'cap-with-next-word-in-doc'
+        
+    def get_value(self, t, words, **kwargs):
+        if t == len(words) - 1:
+            return False
+        else:
+            doc = kwargs.get("doc")
+            self.check_doc(doc)
+            target_cur_word = words[t].capitalize()
+            target_next_word = words[t+1].lower()
+            predicate = (lambda (cur_w, next_w):
+                         cur_w == target_cur_word and
+                         next_w == target_next_word)
+            return self.tail_bigram_match_predicate(doc, predicate)
 
 
 class CapitalizedSentenceHeadInDocumentFeature(DocumentRelatedFeature,
@@ -272,7 +334,7 @@ class CapitalizedSentenceHeadInDocumentFeature(DocumentRelatedFeature,
         
     def _get_label_for_word(self, word, doc):
         cap_word = unicode(word.capitalize())
-        return self.head_token_match_predicate(
+        return self.head_unigram_match_predicate(
             doc, lambda tok: cap_word == tok
         )
 
@@ -303,7 +365,7 @@ class CapitalizedInDocumentFeature(DocumentRelatedFeature,
 
     def _get_label_for_word(self, word, doc):
         cap_word = unicode(word.capitalize())
-        return self.tail_token_match_predicate(
+        return self.tail_unigram_match_predicate(
             doc, lambda tok: cap_word == tok
         )
 
@@ -326,7 +388,7 @@ class UppercaseInDocumentFeature(DocumentRelatedFeature,
         
     def _get_label_for_word(self, word, doc):
         upper_word = word.upper()
-        return self.every_token_match_predicate(
+        return self.every_unigram_match_predicate(
             doc, lambda tok: upper_word == tok
         )
 
@@ -352,7 +414,7 @@ class LowercaseInDocumentFeature(DocumentRelatedFeature,
 
     def _get_label_for_word(self, word, doc):
         lower_word = word.lower()
-        return self.tail_token_match_predicate(
+        return self.tail_unigram_match_predicate(
             doc, lambda tok: lower_word == tok
         )
 

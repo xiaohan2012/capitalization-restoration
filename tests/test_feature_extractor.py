@@ -23,10 +23,13 @@ from capitalization_restoration.feature_extractor \
             FirstnameDictionaryFeature,
             MixedCaseInTailFeature,
             TokenNormalizer,
+            CapitalizedWithPreviousWordInDocument,
+            CapitalizedWithNextWordInDocument
     )
 from capitalization_restoration.dictionary import ItemListDictionary
 
-from capitalization_restoration.tests.data import (load_turkish_example, load_china_example)
+from capitalization_restoration.tests.data import (load_turkish_example,
+                                                   load_china_example)
 
 
 CURDIR = os.path.dirname(os.path.realpath(__file__))
@@ -203,3 +206,32 @@ def test_AllLowercaseFeature():
     assert_true(f.get_value(0, [u'apple']))
     assert_true(f.get_value(0, [u'12-year']))
     assert_false(f.get_value(0, [u'12-Century']))
+
+
+def test_CapitalizedWithPreviousWordInDocument():
+    f = CapitalizedWithPreviousWordInDocument()
+    toks, lemmas, tags, doc = load_turkish_example()
+
+    assert_true(f.get_value(1, ['between', 'lithuania'], doc=doc))
+    assert_false(f.get_value(0, ['between'], doc=doc))
+    assert_false(f.get_value(1, ['three', 'agreements'], doc=doc))
+    assert_false(f.get_value(1, ['between', 'china'], doc=doc))
+
+    # artifial doc
+    doc = [['Long', 'Long', 'ago']]
+    assert_true(f.get_value(1, ['long', 'long'], doc=doc))
+
+
+def test_CapitalizedWithCurrentWordInDocument():
+    f = CapitalizedWithNextWordInDocument()
+    toks, lemmas, tags, doc = load_turkish_example()
+
+    assert_true(f.get_value(0, ['lithuania', 'and'], doc=doc))
+    assert_false(f.get_value(0, ['between'], doc=doc))
+    assert_false(f.get_value(0, ['three', 'agreements'], doc=doc))
+    assert_false(f.get_value(0, ['china', 'open'], doc=doc))
+
+    # artifial doc
+    doc = [['Long', 'Long', 'ago']]
+    assert_false(f.get_value(0, ['long', 'long'], doc=doc))
+    assert_true(f.get_value(1, ['long', 'long', 'ago'], doc=doc))
