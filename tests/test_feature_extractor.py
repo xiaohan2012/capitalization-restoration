@@ -210,6 +210,8 @@ def test_AllLowercaseFeature():
 
 def test_CapitalizedWithPreviousWordInDocument():
     f = CapitalizedWithPreviousWordInDocument()
+    assert_equal(f.name, 'cap-with-prev-word-in-doc')
+    
     toks, lemmas, tags, doc = load_turkish_example()
 
     assert_true(f.get_value(1, ['between', 'lithuania'], doc=doc))
@@ -224,6 +226,8 @@ def test_CapitalizedWithPreviousWordInDocument():
 
 def test_CapitalizedWithCurrentWordInDocument():
     f = CapitalizedWithNextWordInDocument()
+    assert_equal(f.name, 'cap-with-next-word-in-doc')
+
     toks, lemmas, tags, doc = load_turkish_example()
 
     assert_true(f.get_value(0, ['lithuania', 'and'], doc=doc))

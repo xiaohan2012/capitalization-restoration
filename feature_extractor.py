@@ -445,6 +445,8 @@ DEFAULT_FEATURES = [
     LowercaseInDocumentFeature(),
     UppercaseInDocumentFeature(),
     FirstnameDictionaryFeature(),
+    CapitalizedWithPreviousWordInDocument(),
+    CapitalizedWithNextWordInDocument()
 ]
 
 
