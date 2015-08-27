@@ -8,7 +8,7 @@ from feature_extractor import FeatureExtractor
 from feature_templates import (load_feature_templates, apply_templates)
 
 from cap_detect import (capitalized, all_lowercase, all_uppercase)
-
+from label import get_label
 
 CURDIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -96,51 +96,81 @@ class Restorer(object):
             
         templated_features = apply_templates(words_with_features,
                                              self.templates)
+        
+        # exclude the first token
+        # as well as those that are uppercase, mixed-case and non-alphabetic
+        token_ids, templated_features = filter_words(words_with_features,
+                                                     templated_features,
+                                                     excluded_labels=set(['MX', 'AU', 'AN']))
 
-        # DEBUG
-        rows = []
-        feats = []
-        if 'word[0]=Will' in templated_features[1]:
-            for feat in templated_features[1]:
-                feats.append(feat)
-                rows.append((self.dump.state_features.get((feat, 'AL'), 0.0),
-                             self.dump.state_features.get((feat, 'IC'), 0.0))
-                )
-            import pandas as pds
-            df = pds.DataFrame(rows, index=feats, columns=('AL', 'IC'))
-            print(df)
-            print(df.sum(axis=0))
+        # DEBUG START
+        # rows = []
+        # feats = []
+        # pos = 0
+        # if len(templated_features) > 1 and \
+        #    'word[0]=Decisions' in templated_features[pos]:
+        #     for feat in templated_features[pos]:
+        #         feats.append(feat)
+        #         rows.append((self.dump.state_features.get((feat, 'AL'), 0.0),
+        #                      self.dump.state_features.get((feat, 'IC'), 0.0))
+        #         )
+        #     import pandas as pds
+        #     df = pds.DataFrame(rows, index=feats, columns=('AL', 'IC'))
+        #     print(df)
+        #     print(df.sum(axis=0))
+        # DEBUG END
 
-        # print(words_with_features)
-        return self.tagger.tag(
-            apply_templates(words_with_features, self.templates)
-        )
+        return token_ids, self.tagger.tag(templated_features)
 
     def restore(self, sent, *args, **kwargs):
-        labels = self.get_labels(sent, *args, **kwargs)
-        return transform_words_by_labels(sent, labels)
+        token_inds, labels = self.get_labels(sent, *args, **kwargs)
+        return transform_words_by_labels(sent, labels, token_inds)
 
 
-def transform_words_by_labels(words, labels):
+def filter_words(words_with_features,
+                 templated_features,
+                 excluded_labels=set(['MX', 'AU', 'AN'])):
+    """
+    Filter out words by their shape and position
+
+    Return:
+    the corresponding template values
+    """
+    inds = []
+    template_values = []
+    for i, (w, t) in enumerate(zip(words_with_features,
+                                   templated_features)):
+        if i != 0 and get_label(w['word']) not in excluded_labels:
+            inds.append(i)
+            template_values.append(t)
+
+    return inds, template_values
+
+
+def transform_words_by_labels(words, labels, token_inds):
     """
     Transform words capitalization by labels
     """
-    assert len(words) == len(labels)
-    print(labels)
+    # print(words)
+    # print(labels)
+    # print(token_inds)
+    assert len(token_inds) == len(labels)
+
+    token_inds = set(token_inds)
     new_words = []
-    for w, l in zip(words, labels):
-        if l == "IC":
-            new_words.append(w.capitalize())
-        elif l == "AL":
-            new_words.append(w.lower())
-        elif l == "AU":
-            new_words.append(w.upper())
-        elif l == "MX" or l == "AN":
-            # TODO: handle more complex cases for
-            # all uppercase or all lowercase input
-            new_words.append(w)
+    acc = 0
+    for i, w in enumerate(words):
+        if i in token_inds:
+            l = labels[acc]
+            if l == "IC":
+                new_words.append(w.capitalize())
+            elif l == "AL":
+                new_words.append(w.lower())
+            else:
+                raise ValueError("Unknown label %s" % (l))
+            acc += 1
         else:
-            raise ValueError("Unknown label %s" % (l))
+            new_words.append(w)
 
     return new_words
 
@@ -162,5 +192,8 @@ class PulsRestorer(Restorer):
     Restorerer for PULS system
     """
     def __init__(self, *args, **kwargs):
-        super(PulsRestorer, self).__init__(CURDIR + '/models/puls-model',
-                                           *args, **kwargs)
+        super(PulsRestorer, self).__init__(
+            CURDIR + '/models/puls-model',
+            feature_templates=load_feature_templates([1, 3, 4, 6]),
+            **kwargs
+        )

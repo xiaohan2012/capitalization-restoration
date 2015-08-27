@@ -84,8 +84,8 @@ class FirstnameDictionaryFeature(GenericDitionaryFeature):
         dict_ = ItemListDictionary(CURDIR + '/data/dict/dict-first-names.txt')
         super(FirstnameDictionaryFeature, self).__init__(dict_)
         self.name = 'first-name-in-dict'
-
-
+        
+    
 class POSFeature(Feature):
     """
     The word Part-of-speech tag

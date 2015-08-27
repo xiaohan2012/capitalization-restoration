@@ -265,6 +265,10 @@ def clean_title_file(path):
                 print l, 
 
 
+def filter_word_by_shape(words, exclude_labels, *args, **kwargs):
+    pass
+
+
 if __name__ == "__main__":
     # path = get_file_names()[0]
     import doctest

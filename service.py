@@ -5,11 +5,11 @@ import tornado.web
 import nltk
 nltk.data.path.append('nltk_data')
 
-from cap_restore import DefaultRestorer
+from cap_restore import PulsRestorer
 
 import traceback
 
-restorer = DefaultRestorer()
+restorer = PulsRestorer()
 
 
 STATUS_RESTORE_ERROR = -2

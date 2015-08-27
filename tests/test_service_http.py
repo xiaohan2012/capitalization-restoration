@@ -70,8 +70,8 @@ def test_success_case():
         res = make_request(req_data)
         assert_equal(res['code'], STATUS_OK)
         assert_equal(res['result'][:2], [
-            {'no': 33, 'tokens': u'# # #'.split()},
-            {'no': 22, 'tokens': u'About the author'.split()},
+            {u'no': 33, u'tokens': u'# # #'.split()},
+            {u'no': 22, u'tokens': u'About the Author'.split()},
         ])
         assert_equal(len(res['result']), 9)
 

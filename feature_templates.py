@@ -14,7 +14,7 @@ positional_features = [
 
 dict_features = [
     (('lower-in-dict', 0), ),
-    (('upper-in-dict', 0), ),
+    # (('upper-in-dict', 0), ),
     (('cap-in-dict', 0), ),
     (('orig-in-dict', 0), ),
     (('first-name-in-dict', 0), ),
@@ -44,11 +44,13 @@ document_features = [(('cap-in-doc', 0), ),
                      (('lower-in-doc', 0), ),
                      (('cap-in-doc', -1), ('cap-in-doc', 0), ('lower-in-doc', 0)),
                      (('cap-in-doc', 0), ('lower-in-doc', 0)),
-                     (('upper-in-doc', 0), ),
+                     # (('upper-in-doc', 0), ),
                      (('cap-sent-head-in-doc', 0), ),
                      (('cap-in-doc', 0), ('lower-in-dict', 0)),
-                     (('cap-in-doc', 0), ('upper-in-dict', 0)),
-                     (('cap-in-doc', 0), ('cap-in-dict', 0))
+                     # (('cap-in-doc', 0), ('upper-in-dict', 0)),
+                     (('cap-in-doc', 0), ('cap-in-dict', 0)),
+                     (('cap-with-prev-word-in-doc', 0), ),
+                     (('cap-with-next-word-in-doc', 0), ),
 ]
 
 id2featue = {
